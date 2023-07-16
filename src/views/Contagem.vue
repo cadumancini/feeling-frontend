@@ -1,6 +1,6 @@
 <template>
   <div class="contagem">
-    <Navbar/>
+    <Navbar title="Inventário"/>
     <div class="mx-3 mt-1">
       <div class="row">
         <div class="border border-2 rounded-3 px-2 pt-2">

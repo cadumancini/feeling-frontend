@@ -1,6 +1,6 @@
 <template>
   <div class="gerarPedido">
-    <Navbar/>
+    <Navbar title="Pedido Web"/>
     <div class="mx-3">
       <div class="row mb-1">
         <div class="col-3">

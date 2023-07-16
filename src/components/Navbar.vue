@@ -1,8 +1,12 @@
 <template>
   <nav class="navbar navbar-expand-md navbar-light mb-2" style="background-color: #dedede;">
-    <a class="navbar-brand" href="#"><img alt="Feeling" src="../assets/feeling.png"></a>
-    <ul class="navbar-nav ms-auto">
-      <li class="nav-item">
+    <a class="navbar-brand logo" href="#"><img alt="Feeling" src="../assets/feeling.png"></a>
+    <h1 class="h5 mx-5 pt-2">{{ this.title }}</h1>
+    <ul class="navbar-nav ms-auto actions">
+      <li class="nav-item mx-2" v-if="this.title !== 'Portal Web'">
+        <a class="nav-link" href="#" @click="return">Voltar</a>
+      </li>
+      <li class="nav-item mx-2">
         <a class="nav-link" href="#" @click="logout">Logout</a>
       </li>
     </ul>
@@ -16,42 +20,24 @@ export default {
     logout () {
       sessionStorage.removeItem('token')
       this.$router.push({ name: 'Login' })
+    },
+    return () {
+      this.$router.go(-1)
     }
+  },
+  props: {
+    title: String
   }
 }
 </script>
 
-<!-- NavBar Inventario -->
-<!-- <template>
-  <nav class="navbar navbar-expand-md navbar-light" style="background-color: #dedede;">
-    <h1 class="h5 mx-2 pt-2">Movimentação de estoque</h1>
-    <ul class="navbar-nav ms-auto mx-2">
-      <li class="nav-item">
-        <a class="nav-link btn btn-sm btn-secondary btn-dismiss ms-2 px-2" @click="logout">Sair</a>
-      </li>
-    </ul>
-  </nav>
-</template>
-
-<script>
-export default {
-  name: 'Navbar',
-  methods: {
-    logout () {
-      sessionStorage.removeItem('token')
-      this.$router.push({ name: 'Login' })
-    }
-  }
-}
-</script>
-f8f9fa
 <style scoped>
-  .btn-dismiss {
-    color: #fff;
-    /* background-color: #aab4bd; */
+  @media (max-width: 400px) {
+    .logo {
+      display: none;
+    }
   }
-  .btn-dismiss:hover {
-    color: #fff;
-    /* background-color: #93999e; */
+  .actions {
+    flex-direction: row !important;
   }
-</style> -->
+</style>
