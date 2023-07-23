@@ -1011,6 +1011,7 @@ export default {
   created () {
     this.api_url = process.env.VUE_APP_API_URL
     this.token = sessionStorage.getItem('token')
+    this.checkAccess()
   },
   mounted () {
     if (!sessionStorage.getItem('token')) {
@@ -1019,6 +1020,18 @@ export default {
     this.excluirRascunho()
   },
   methods: {
+    checkAccess() {
+      axios.get(this.api_url + '/telasDisponiveis?token=' + this.token + '&tela=COM-PED')
+      .then((response) => {
+        if (response.data === 'Tela não encontrada' || response.data.telas[0] !== 'COM-PED') {
+          alert('Você não tem acesso à esta tela, e será redirecionado ao menu anterior')
+          this.$router.push({ name: 'Menu' })
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
     checkInvalidLoginResponse (response) {
       if (response === 'Token inválido.') {
         alert('Seu token de acesso não é mais válido. É necessário fazer login novamente.')

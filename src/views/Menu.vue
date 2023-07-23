@@ -3,25 +3,25 @@
     <Navbar title="Portal Web"/>
     <div class="menu">
       <form class="form-menu" @submit.prevent="handleSubmit">
-        <div class="menu-context row mb-2 px-2 pt-2">
+        <div class="menu-context row mb-2 px-2 pt-2" v-if="hasAccess('ALM-')">
           <button class="btn btn-lg btn-secondary mb-1" @click="triggerAlmoxarifado">Almoxarifado<span class="arrow" v-text="this.expandAlmoxarifado ? '▲' : '▼'"></span></button>
           <div class="submenu" v-if="expandAlmoxarifado">
-            <button class="btn btn-sub mb-1" @click="access('Contagem')">Inventário</button>
-            <button class="btn btn-sub mb-1">Separação de Materiais</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('ALM-INV')" @click="access('Contagem')">Inventário</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('ALM-SEP')">Separação de Materiais</button>
           </div>
         </div>
-        <div class="menu-context row mb-2 px-2 pt-2">
+        <div class="menu-context row mb-2 px-2 pt-2" v-if="hasAccess('COM-')">
           <button class="btn btn-lg btn-secondary mb-1" @click="triggerComercial">Comercial<span class="arrow" v-text="this.expandComercial ? '▲' : '▼'"></span></button>
           <div class="submenu" v-if="expandComercial">
-            <button class="btn btn-sub mb-1" @click="access('GerarPedido')">Pedido Web</button>
-            <button class="btn btn-sub mb-1">Assistência Técnica</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('COM-PED')" @click="access('GerarPedido')">Pedido Web</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('XYZ-COM-AST')">Assistência Técnica</button>
           </div>
         </div>
-        <div class="menu-context row mb-2 px-2 pt-2">
+        <div class="menu-context row mb-2 px-2 pt-2" v-if="hasAccess('PRD-')">
           <button class="btn btn-lg btn-secondary mb-1" @click="triggerProducao">Produção<span class="arrow" v-text="this.expandProducao ? '▲' : '▼'"></span></button>
           <div class="submenu" v-if="expandProducao">
-            <button class="btn btn-sub mb-1">Apontamento de Produção</button>
-            <button class="btn btn-sub mb-1">Não Conformidade</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('PRD-APT')">Apontamento de Produção</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('XYZ-PRD-NCN')">Não Conformidade</button>
           </div>
         </div>
       </form>
@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import Navbar from '../components/Navbar.vue'
 export default {
   name: 'Menu',
@@ -39,11 +40,21 @@ export default {
       expandAlmoxarifado: false,
       expandComercial: false,
       expandProducao: false,
+      formsAvailable: []
     }
   },
   created () {
     this.api_url = process.env.VUE_APP_API_URL
     this.token = sessionStorage.getItem('token')
+
+    this.formsAvailable = []
+    axios.get(this.api_url + '/telasDisponiveis?token=' + this.token)
+      .then((response) => {
+        this.formsAvailable = response.data.telas
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   },
   mounted () {
     if (!sessionStorage.getItem('token')) {
@@ -67,6 +78,12 @@ export default {
     },
     access (form) {
       this.$router.push({ name: form })
+    },
+    hasAccess (formCode) {
+      if (this.formsAvailable.some(form => form.startsWith(formCode))) {
+        return true
+      }
+      return false
     }
   }
 }
