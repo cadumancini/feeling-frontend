@@ -96,26 +96,14 @@ export default {
       document.getElementById('btnProcessar').disabled = true
 
       this.qtdeSep = String(this.qtdeSep).replace('.', ',')
-      axios.post(this.api_url + '/contagem?token=' + this.token + '&pro=' + this.produtoInv.CODPRO + '&der=' + this.produtoInv.CODDER + '&lot=' + this.loteCab +
-                                            '&depOri=' + this.depositoAtu + '&depDes=' + depositoDest + '&qtdMov=' + this.qtdeCon)
+      axios.post(this.api_url + '/separarAlmox?token=' + this.token + '&codBar=' + this.codBarrasCab + '&qtdSep=' + this.qtdeSep)
         .then(response => {
           this.checkInvalidLoginResponse(response.data)
-          if(response.data.includes('<mensagemRetorno>Processado com Sucesso.</mensagemRetorno>')) {
-            alert('Contagem realizada com sucesso!')
+          if(response.data === 'OK') {
+            alert('Separação realizada com sucesso!')
             this.cancelar()
           } else {
-            var errorMsg = response.data
-            let pos1 = response.data.indexOf('<mensagemRetorno>')
-            let pos2 = response.data.indexOf('</mensagemRetorno>')
-            if(pos1 === -1) {
-              pos1 = response.data.indexOf('<erroExecucao>')
-              pos2 = response.data.indexOf('</erroExecucao>')
-            }
-            if (pos1 !== -1) {
-              alert(errorMsg.substring((pos1 + 17), pos2))
-            } else {
-              alert('Erro não identificado ao processar. Favor entrar em contato com o administrador do sistema.')
-            }
+            alert(response.data)
             this.cancelar()
           }
         })
