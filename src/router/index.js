@@ -3,6 +3,8 @@ import Login from '../views/Login.vue'
 import GerarPedido from '../views/GerarPedido.vue'
 import Contagem from '../views/Contagem.vue'
 import Menu from '../views/Menu.vue'
+import Separacao from '../views/Separacao.vue'
+import Apontamento from '../views/Apontamento.vue'
 
 const routes = [
   {
@@ -19,6 +21,16 @@ const routes = [
     path: '/contagem',
     name: 'Contagem',
     component: Contagem
+  },
+  {
+    path: '/separacao',
+    name: 'Separacao',
+    component: Separacao
+  },
+  {
+    path: '/apontamento',
+    name: 'Apontamento',
+    component: Apontamento
   },
   {
     path: '/login',

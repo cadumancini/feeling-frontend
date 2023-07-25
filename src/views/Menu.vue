@@ -7,7 +7,7 @@
           <button class="btn btn-lg btn-secondary mb-1" @click="triggerAlmoxarifado">Almoxarifado<span class="arrow" v-text="this.expandAlmoxarifado ? '▲' : '▼'"></span></button>
           <div class="submenu" v-if="expandAlmoxarifado">
             <button class="btn btn-sub mb-1" v-if="hasAccess('ALM-INV')" @click="access('Contagem')">Inventário</button>
-            <button class="btn btn-sub mb-1" v-if="hasAccess('ALM-SEP')">Separação de Materiais</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('ALM-SEP')" @click="access('Separacao')">Separação de Materiais</button>
           </div>
         </div>
         <div class="menu-context row mb-2 px-2 pt-2" v-if="hasAccess('COM-')">
@@ -20,7 +20,7 @@
         <div class="menu-context row mb-2 px-2 pt-2" v-if="hasAccess('PRD-')">
           <button class="btn btn-lg btn-secondary mb-1" @click="triggerProducao">Produção<span class="arrow" v-text="this.expandProducao ? '▲' : '▼'"></span></button>
           <div class="submenu" v-if="expandProducao">
-            <button class="btn btn-sub mb-1" v-if="hasAccess('PRD-APT')">Apontamento de Produção</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('PRD-APT')" @click="access('Apontamento')">Apontamento de Produção</button>
             <button class="btn btn-sub mb-1" v-if="hasAccess('XYZ-PRD-NCN')">Não Conformidade</button>
           </div>
         </div>
