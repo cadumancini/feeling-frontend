@@ -89,13 +89,8 @@ export default {
       axios.post(this.api_url + '/apontarOP?token=' + this.token + '&codBar=' + this.codBarrasCab)
         .then(response => {
           this.checkInvalidLoginResponse(response.data)
-          if(response.data === 'OK') {
-            alert('Apontamento realizado com sucesso!')
-            this.cancelar()
-          } else {
-            alert(response.data)
-            this.cancelar()
-          }
+          alert(response.data)
+          this.cancelar()
         })
         .catch((err) => {
           console.log(err)
