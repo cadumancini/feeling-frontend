@@ -5,6 +5,7 @@ import Contagem from '../views/Contagem.vue'
 import Menu from '../views/Menu.vue'
 import Separacao from '../views/Separacao.vue'
 import Apontamento from '../views/Apontamento.vue'
+import NaoConformidade from '../views/NaoConformidade.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
     path: '/apontamento',
     name: 'Apontamento',
     component: Apontamento
+  },
+  {
+    path: '/nao-conformidade',
+    name: 'NaoConformidade',
+    component: NaoConformidade
   },
   {
     path: '/login',
