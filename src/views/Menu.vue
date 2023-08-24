@@ -21,7 +21,7 @@
           <button class="btn btn-lg btn-secondary mb-1" @click="triggerProducao">Produção<span class="arrow" v-text="this.expandProducao ? '▲' : '▼'"></span></button>
           <div class="submenu" v-if="expandProducao">
             <button class="btn btn-sub mb-1" v-if="hasAccess('PRD-APT')" @click="access('Apontamento')">Apontamento de Produção</button>
-            <button class="btn btn-sub mb-1" v-if="hasAccess('PRD-NCN')" @click="access('NaoConformidade')">Não Conformidade</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('PRD-NCN')" @click="access('NaoConformidade')">Registro de Não Conformidade</button>
           </div>
         </div>
       </form>

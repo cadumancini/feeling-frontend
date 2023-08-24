@@ -13,6 +13,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
 import VueNumberFormat from 'vue-number-format'
 
+import { setupCalendar } from 'v-calendar';
+
 library.add(faReceipt)
 library.add(faEdit)
 library.add(faBarcode)
@@ -25,5 +27,5 @@ library.add(faTrashAlt)
 library.add(faFileUpload)
 library.add(faDownload)
 library.add(faPercentage)
-createApp(App).use(router).use(VueNumberFormat, { prefix: '', decimal: ',', thousand: '.' })
+createApp(App).use(router).use(VueNumberFormat, { prefix: '', decimal: ',', thousand: '.' }).use(setupCalendar, {})
   .component('font-awesome-icon', FontAwesomeIcon).mount('#app')
