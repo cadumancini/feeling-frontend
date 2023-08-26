@@ -96,10 +96,21 @@
             </div>
           </div>
           <div class="row mb-2">
-            <div class="col">
+            <div class="col-7">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Justificativa</span>
                 <textarea class="form-control custom-control" v-model="jusRnc" ref="inputJusRnc" maxlength="1999" rows="3" style="resize:none"></textarea>
+              </div>
+            </div>
+            <div class="col-5">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Anexos</span>
+                <label class="btn btn-sm btn-action btn-dismiss btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)">
+                  <font-awesome-icon icon="file-upload"/><input type="file" ref="uploadArquivo" style="display: none;" @change="onUploadArquivo"/>
+                </label>
+                <button class="btn btn-sm btn-action btn-dismiss btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)">
+                  <font-awesome-icon icon="download"/>
+                </button>
               </div>
             </div>
           </div>
@@ -261,7 +272,7 @@
         <div class="modal-dialog modal-dialog-scrollable modal-sm">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="datePickerModalLabel">Date de Auditoria</h5>
+              <h5 class="modal-title" id="datePickerModalLabel">Data de Auditoria</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDatePicker"></button>
             </div>
             <div class="modal-body">
@@ -337,7 +348,9 @@ export default {
       doctosFiltrados: null,
       doctos: null,
       datRnc: new Date(),
-      desRnc: ''
+      desRnc: '',
+      numPed: '',
+      seqIpd: ''
     }
   },
   created () {
@@ -506,6 +519,31 @@ export default {
       this.desDocRnc = doctoClicked.DESDOC
       document.getElementById('closeModalDoctos').click()
     },
+    onUploadArquivo () {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      // const file = this.$refs.uploadArquivo.files[0]
+      const file = event.target.files[0]
+      this.formData = new FormData()
+      this.formData.append('file', file)
+      const headers = {
+        Accept: 'application/json',
+        'Content-Type': 'multipart/form-data'
+      }
+      axios.post(this.api_url + '/uploadArquivoRnc?ped=' + this.numPed + '&ipd=' + this.seqIpd + '&token=' + this.token, this.formData, { headers: headers })
+        .then((response) => {
+          if (response.data === 'OK') {
+            alert('Arquivo enviado com sucesso!')
+          } else {
+            alert(response.data)
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+        })
+    },
     cancelar () {
       this.codBarrasCab = ''
       this.$refs.inputCodBarras.focus()
@@ -535,5 +573,27 @@ export default {
   }
   .modal-backdrop.show:nth-of-type(even) {
     z-index: 1061 !important;
+  }
+  .sm {
+    font-size: 0.8rem !important;
+  }
+  .sm-header {
+    font-size: 0.9rem !important;
+  }
+  .btn-action {
+    width: 2rem;
+    margin-left: 1px;
+    margin-right: 1px;
+  }
+  .btn-dismiss {
+    color: #fff;
+    background-color: #aab4bd;
+    border-color: #828385;
+  }
+  .btn-dismiss:hover {
+    color: #fff;
+    background-color: #93999e;
+    border-color: #8a8a8a;
+    border-color: #828385;
   }
 </style>
