@@ -14,7 +14,6 @@
           </div>
         </div>
       </div>
-
       <div class="row mt-2">
         <div class="border border-2 rounded-3 px-2 pt-2">
           <div class="row mb-2">
@@ -48,7 +47,7 @@
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Data de Auditoria</span>
-                <input id="datRnc" class="form-control" type="text" disabled :value="datRnc ? datRnc.toLocaleDateString() : ''">
+                <input id="datRnc" class="form-control" type="text" disabled :value="datRnc ? datRnc.toLocaleDateString('pt-BR') : ''">
                 <button class="btn btn-secondary input-group-btn btn-busca" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
               </div>
             </div>
@@ -108,12 +107,17 @@
                 <label class="btn btn-sm btn-action btn-dismiss btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)">
                   <font-awesome-icon icon="file-upload"/><input type="file" ref="uploadArquivo" style="display: none;" @change="onUploadArquivo"/>
                 </label>
-                <button class="btn btn-sm btn-action btn-dismiss btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)">
+                <button class="btn btn-sm btn-action btn-dismiss btn-secondary sm" @click="download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)">
                   <font-awesome-icon icon="download"/>
                 </button>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+      <div class="row mb-2">
+        <div class="d-grid gap-2">
+          <button id="btnProcessar" class="btn btn-secondary" type="button" @click="enviarRnc" ref="btnProcessar">Processar</button>
         </div>
       </div>
 
@@ -277,7 +281,7 @@
             </div>
             <div class="modal-body">
               <div class="mb-3 d-flex justify-content-center">
-                <DatePicker v-model="datePicked" mode="date"/>
+                <DatePicker v-model="datePicked" mode="date" locale="br"/>
               </div>
             </div>
             <div class="modal-footer">
@@ -348,9 +352,12 @@ export default {
       doctosFiltrados: null,
       doctos: null,
       datRnc: new Date(),
+      conPro: '',
+      jusRnc: '',
       desRnc: '',
       numPed: '',
-      seqIpd: ''
+      seqIpd: '',
+      seqIte: '',
     }
   },
   created () {
@@ -388,25 +395,6 @@ export default {
     onSelect () {
       alert('Pressionou tab')
     },
-    // processar () {
-    //   document.getElementsByTagName('body')[0].style.cursor = 'wait'
-    //   document.getElementById('btnProcessar').disabled = true
-
-    //   axios.post(this.api_url + '/apontarOP?token=' + this.token + '&codBar=' + this.codBarrasCab)
-    //     .then(response => {
-    //       this.checkInvalidLoginResponse(response.data)
-    //       alert(response.data)
-    //       this.cancelar()
-    //     })
-    //     .catch((err) => {
-    //       console.log(err)
-    //     })
-    //     .finally(() => {
-    //       document.getElementsByTagName('body')[0].style.cursor = 'auto'
-    //       document.getElementById('btnProcessar').disabled = false
-    //     })
-
-    // },
     buscarOrigens () {
       this.origensFiltro = ''
       if (this.origens === null) {
@@ -515,13 +503,12 @@ export default {
       this.doctosFiltrados = this.doctos.filter(docto => docto.DESDOC.toUpperCase().startsWith(this.doctosFiltro.toUpperCase()))
     },
     selectDocto (doctoClicked) {
-      this.docRnc = doctoClicked.CODARE
+      this.docRnc = doctoClicked.CODDOC
       this.desDocRnc = doctoClicked.DESDOC
       document.getElementById('closeModalDoctos').click()
     },
     onUploadArquivo () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      // const file = this.$refs.uploadArquivo.files[0]
       const file = event.target.files[0]
       this.formData = new FormData()
       this.formData.append('file', file)
@@ -533,6 +520,68 @@ export default {
         .then((response) => {
           if (response.data === 'OK') {
             alert('Arquivo enviado com sucesso!')
+          } else {
+            alert(response.data)
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+        })
+    },
+    download () {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      // axios.get(this.api_url + '/downloadArquivoRnc?ped=' + this.numPed + '&ipd=' + this.seqIpd + '&token=' + this.token)
+      axios({
+        url: this.api_url + '/downloadArquivoRnc?ped=' + this.numPed + '&ipd=' + item.seqIpd + '&token=' + this.token, 
+        method: 'GET',
+        responseType: 'blob'
+      })
+        .then((response) => {
+          if (response.status === 204) {
+            alert('Nenhum arquivo disponível para download.')
+          } else {
+            const url = window.URL.createObjectURL(new Blob([response.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', 'NC-' + this.numPed + '-' + this.seqIpd + '.zip')
+            document.body.appendChild(link)
+            link.click()
+          }
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+        })
+    },
+    enviarRnc () {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      const body = JSON.stringify({
+        rnc: {
+          codEmp: 1,
+          tipRmc: 'RNC',
+          numRmc: this.numRnc,
+          assRmc: this.assRnc,
+          oriRmc: this.oriRnc,
+          reqIso: this.reqIso,
+          areApl: this.areRnc,
+          datAud: this.datRnc.toLocaleDateString('pt-BR'),
+          desNcf: this.desRnc,
+          codDoc: this.docRnc,
+          conPro: this.conPro,
+          jusCon: this.jusRnc,
+          numPed: this.numPed > 0 ? this.numPed : 0,
+          seqIpd: this.seqIpd > 0 ? this.seqIpd : 0,
+          seqIte: this.seqIte > 0 ? this.seqIte : 0
+        }
+      })
+      const headers = { headers: { 'Content-Type': 'application/json' } }
+      axios.put(this.api_url + '/rnc?token=' + this.token, body, headers)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          if (response.data === 'OK') {
+            alert('RNC inserida com sucesso!')
           } else {
             alert(response.data)
           }
