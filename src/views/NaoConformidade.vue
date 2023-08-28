@@ -8,7 +8,8 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Número da RNC</span>
-                <input class="form-control" type="text" v-on:keydown.tab="onSelect" v-model="numRnc" ref="inputNumRnc" placeholder="Informe o número para carregar NC existente ou 0 (zero) para nova NC">
+                <input class="form-control" type="text" v-model="numRnc" ref="inputNumRnc" placeholder="Informe o número para carregar NC existente ou 0 (zero) para nova NC">
+                <button id="btnBuscaRncs" class="btn btn-secondary input-group-btn btn-busca" @click="buscarRncs" data-bs-toggle="modal" data-bs-target="#rncsModal">...</button>
               </div>
             </div>
           </div>
@@ -118,6 +119,49 @@
       <div class="row mb-2">
         <div class="d-grid gap-2">
           <button id="btnProcessar" class="btn btn-secondary" type="button" @click="enviarRnc" ref="btnProcessar">Processar</button>
+        </div>
+      </div>
+
+      <!-- Modal RNCs -->
+      <div class="modal fade" id="rncsModal" tabindex="-1" aria-labelledby="rncsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="rncsModalLabel">Busca de RNCs</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalRncs"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3" v-if="rncs != null">
+                <input type="text" class="form-control mb-3" v-on:keyup="filtrarRncs" v-model="rncsFiltro" placeholder="Digite para buscar a RNC na tabela abaixo">
+                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                  <thead>
+                    <tr>
+                      <th class="sm-header" scope="col">Número</th>
+                      <th class="sm-header" scope="col">Assunto</th>
+                      <th class="sm-header" scope="col">Origem</th>
+                      <th class="sm-header" scope="col">Área</th>
+                      <th class="sm-header" scope="col">Data Aud.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="rncRow in rncsFiltradas" :key="rncRow.NUMRMC" class="mouseHover" @click="selectRnc(rncRow)">
+                      <th class="fw-normal sm" scope="row">{{ rncRow.NUMRMC }}</th>
+                      <th class="fw-normal sm">{{ rncRow.ASSRMC }}</th>
+                      <th class="fw-normal sm">{{ rncRow.DESRGQ }}</th>
+                      <th class="fw-normal sm">{{ rncRow.NOMARE }}</th>
+                      <th class="fw-normal sm">{{ rncRow.DATAUD }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else>
+                <label>Buscando RNCs ...</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -328,6 +372,9 @@ export default {
     return {
       api_url: '',
       token: '',
+      rncs: null,
+      rncsFiltradas: null,
+      rncsFiltro: '',
       numRnc: '',
       assRnc: '',
       oriRnc: '',
@@ -345,7 +392,6 @@ export default {
       requisitosFiltro: '',
       requisitosFiltrados: null,
       requisitos: null,
-      areas: null,
       docRnc: '',
       desDocRnc: '',
       doctosFiltro: '',
@@ -392,8 +438,48 @@ export default {
         this.$router.push({ name: 'Login' })
       }
     },
-    onSelect () {
-      alert('Pressionou tab')
+    buscarRncs () {
+      this.rncsFiltro = ''
+      if (this.rncs === null) {
+        document.getElementsByTagName('body')[0].style.cursor = 'wait'
+        document.getElementById('btnBuscaRncs').disabled = true
+        axios.get(this.api_url + '/rncs?token=' + this.token)
+          .then((response) => {
+            this.checkInvalidLoginResponse(response.data)
+            this.rncs = response.data.rnc
+            this.rncsFiltradas = response.data.rnc
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+          .finally(() => {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            document.getElementById('btnBuscaRncs').disabled = false
+          })
+      }
+    },
+    filtrarRncs () {
+      this.rncsFiltradas = this.rncs.filter(rnc => rnc.NUMRMC.toUpperCase().startsWith(this.rncsFiltro.toUpperCase()))
+    },
+    selectRnc (rncClicked) {
+      this.numRnc = rncClicked.NUMRMC
+      this.assRnc = rncClicked.ASSRMC
+      this.oriRnc = rncClicked.ORIRMC
+      this.desOriRnc = rncClicked.DESRGQ
+      this.areRnc = rncClicked.AREAPL
+      this.desAreRnc = rncClicked.NOMARE
+      this.reqIso = rncClicked.REQISO
+      this.desReqIso = rncClicked.DESREQ
+      this.docRnc = rncClicked.CODDOC
+      this.desDocRnc = rncClicked.DESDOC
+      this.datePicked = new Date(rncClicked.DATAUD.substring(6, 10) + '-' + rncClicked.DATAUD.substring(3, 5) + '-' + rncClicked.DATAUD.substring(0, 2) + 'T00:00:00')
+      this.conPro = rncClicked.CONPRO
+      this.jusRnc = rncClicked.JUSCON
+      this.desRnc = rncClicked.DESNCF
+      // this.numPed = rncClicked.NUMPED
+      // this.seqIpd = rncClicked.SEQIPD
+      // this.seqIte = rncClicked.SEQITE
+      document.getElementById('closeModalRncs').click()
     },
     buscarOrigens () {
       this.origensFiltro = ''
