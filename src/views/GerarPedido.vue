@@ -1043,7 +1043,7 @@ export default {
       this.clientesFiltro = ''
       if (this.clientes === null) {
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
-        document.getElementById('btnBuscaClientes').disabled = 
+        document.getElementById('btnBuscaClientes').disabled = true
         axios.get(this.api_url + '/clientes?token=' + this.token)
           .then((response) => {
             this.checkInvalidLoginResponse(response.data)

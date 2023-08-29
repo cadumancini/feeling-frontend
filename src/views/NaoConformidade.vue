@@ -8,9 +8,14 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Número da RNC</span>
-                <input class="form-control" type="text" v-model="numRnc" ref="inputNumRnc" placeholder="Informe o número para carregar NC existente ou 0 (zero) para nova NC">
+                <input class="form-control" type="text" v-model="numRnc" ref="inputNumRnc" disabled>
                 <button id="btnBuscaRncs" class="btn btn-secondary input-group-btn btn-busca" @click="buscarRncs" data-bs-toggle="modal" data-bs-target="#rncsModal">...</button>
+                <button id="btnIniciarRncs" class="btn btn-secondary input-group-btn btn-busca" @click="iniciarRnc">+</button>
               </div>
+            </div>
+            <div class="col-auto">
+              <button class="float-end btn-sm btn btn-secondary btn-sm ms-2" type="button" @click="cancelar" :disabled="numRnc === ''">Cancelar</button>
+              <button id="btnProcessar" class="float-end btn btn-secondary btn-sm" type="button" @click="enviarRnc" ref="btnProcessar" :disabled="numRnc === ''">Processar</button>
             </div>
           </div>
         </div>
@@ -21,19 +26,19 @@
             <div class="col-7">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Assunto</span>
-                <textarea class="form-control custom-control" v-model="assRnc" ref="inputAssRnc" rows="3" maxlength="250" style="resize:none"></textarea>
+                <textarea class="form-control custom-control" v-model="assRnc" ref="inputAssRnc" rows="3" maxlength="250" style="resize:none" :disabled="numRnc === ''"></textarea>
               </div>
             </div>
             <div class="col-5">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Origem</span>
                 <input id="oriRnc" class="form-control" type="text" disabled v-model="desOriRnc">
-                <button id="btnBuscaOrigens" class="btn btn-secondary input-group-btn btn-busca" @click="buscarOrigens" data-bs-toggle="modal" data-bs-target="#origensModal">...</button>
+                <button id="btnBuscaOrigens" class="btn btn-secondary input-group-btn btn-busca" @click="buscarOrigens" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#origensModal">...</button>
               </div>
               <div class="input-group input-group-sm mt-2">
                 <span class="input-group-text">Área</span>
                 <input id="areRnc" class="form-control" type="text" disabled v-model="desAreRnc">
-                <button id="btnBuscaAreas" class="btn btn-secondary input-group-btn btn-busca" @click="buscarAreas" data-bs-toggle="modal" data-bs-target="#areasModal">...</button>
+                <button id="btnBuscaAreas" class="btn btn-secondary input-group-btn btn-busca" @click="buscarAreas" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#areasModal">...</button>
               </div>
             </div>
           </div>
@@ -42,14 +47,14 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Requisito ISO</span>
                 <input id="reqIso" class="form-control" type="text" disabled v-model="desReqIso">
-                <button id="btnBuscaRequisitos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarRequisitos" data-bs-toggle="modal" data-bs-target="#requisitosModal">...</button>
+                <button id="btnBuscaRequisitos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarRequisitos" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#requisitosModal">...</button>
               </div>
             </div>
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Data de Auditoria</span>
                 <input id="datRnc" class="form-control" type="text" disabled :value="datRnc ? datRnc.toLocaleDateString('pt-BR') : ''">
-                <button class="btn btn-secondary input-group-btn btn-busca" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
+                <button class="btn btn-secondary input-group-btn btn-busca" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
               </div>
             </div>
           </div>
@@ -57,19 +62,19 @@
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Pedido</span>
-                <input class="form-control" type="number" v-model="numPed">
+                <input class="form-control" type="number" v-model="numPed" :disabled="numRnc === ''">
               </div>
             </div>
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Item</span>
-                <input class="form-control" type="number" v-model="seqIpd">
+                <input class="form-control" type="number" v-model="seqIpd" :disabled="numRnc === ''">
               </div>
             </div>
             <div class="col-4">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Sequência</span>
-                <input class="form-control" type="number" v-model="seqIte">
+                <input class="form-control" type="number" v-model="seqIte" :disabled="numRnc === ''">
               </div>
             </div>
           </div>
@@ -77,18 +82,18 @@
             <div class="col-7">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Descrição</span>
-                <textarea class="form-control custom-control" v-model="desRnc" ref="inputDesRnc" rows="3" maxlength="1999" style="resize:none"></textarea>
+                <textarea class="form-control custom-control" v-model="desRnc" ref="inputDesRnc" rows="3" maxlength="1999" style="resize:none" :disabled="numRnc === ''"></textarea>
               </div>
             </div>
             <div class="col-5">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Documento</span>
                 <input id="docRnc" class="form-control" type="text" disabled v-model="desDocRnc">
-                <button id="btnBuscaDoctos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarDoctos" data-bs-toggle="modal" data-bs-target="#doctosModal">...</button>
+                <button id="btnBuscaDoctos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarDoctos" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#doctosModal">...</button>
               </div>
               <div class="input-group input-group-sm mt-2">
                 <span class="input-group-text">Conformidade Procedente</span>
-                <select class="form-select" v-model="conPro">
+                <select class="form-select" v-model="conPro" :disabled="numRnc === ''">
                   <option selected value="S">Sim</option>
                   <option value="N">Não</option>
                 </select>
@@ -99,26 +104,21 @@
             <div class="col-7">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Justificativa</span>
-                <textarea class="form-control custom-control" v-model="jusRnc" ref="inputJusRnc" maxlength="1999" rows="3" style="resize:none"></textarea>
+                <textarea class="form-control custom-control" v-model="jusRnc" ref="inputJusRnc" maxlength="1999" rows="3" style="resize:none" :disabled="numRnc === ''"></textarea>
               </div>
             </div>
             <div class="col-5">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Anexos</span>
-                <label class="btn btn-sm btn-action btn-dismiss btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)">
+                <label class="btn btn-sm btn-action btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)" v-bind:class="{ disabled: numRnc === '' }">
                   <font-awesome-icon icon="file-upload"/><input type="file" ref="uploadArquivo" style="display: none;" @change="onUploadArquivo"/>
                 </label>
-                <button class="btn btn-sm btn-action btn-dismiss btn-secondary sm" @click="download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)">
+                <button class="btn btn-sm btn-action btn-secondary sm" @click="download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)" :disabled="numRnc === ''">
                   <font-awesome-icon icon="download"/>
                 </button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-      <div class="row mb-2">
-        <div class="d-grid gap-2">
-          <button id="btnProcessar" class="btn btn-secondary" type="button" @click="enviarRnc" ref="btnProcessar">Processar</button>
         </div>
       </div>
 
@@ -334,16 +334,6 @@
           </div>
         </div>
       </div>
-
-      <div class="row mt-5 mb-1">
-        <div class="border border-2 rounded-3 px-2 py-2">
-          <div class="row">
-            <div class="d-grid gap-2">
-              <button class="btn btn-secondary" type="button" @click="cancelar">Cancelar</button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -397,7 +387,7 @@ export default {
       doctosFiltro: '',
       doctosFiltrados: null,
       doctos: null,
-      datRnc: new Date(),
+      datRnc: null,
       conPro: '',
       jusRnc: '',
       desRnc: '',
@@ -679,9 +669,43 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
         })
     },
+    iniciarRnc () {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnIniciarRncs').disabled = true
+      axios.get(this.api_url + '/proximaRnc?token=' + this.token)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.numRnc = response.data.rnc[0].NUMRMC
+          this.iniciarCampos()
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnIniciarRncs').disabled = false
+        })
+    },
+    iniciarCampos () {
+      this.assRnc = ''
+      this.oriRnc = ''
+      this.desOriRnc = ''
+      this.areRnc = ''
+      this.desAreRnc = ''
+      this.reqIso = ''
+      this.desReqIso = ''
+      this.docRnc = ''
+      this.desDocRnc = ''
+      this.datePicked = null
+      this.datRnc = null
+      this.conPro = ''
+      this.jusRnc = ''
+      this.desRnc = ''
+      this.$refs.inputAssRnc.focus()
+    },
     cancelar () {
-      this.codBarrasCab = ''
-      this.$refs.inputCodBarras.focus()
+      this.numRnc = ''
+      this.iniciarCampos()
     }
   }
 }
