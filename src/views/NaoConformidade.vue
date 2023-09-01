@@ -254,7 +254,7 @@
       </div>
 
       <!-- Modal Doctos -->
-      <div class="modal fade" id="doctosModal" tabindex="-1" aria-labelledby="doctosModalLabel" aria-hidden="true">
+      <!-- <div class="modal fade" id="doctosModal" tabindex="-1" aria-labelledby="doctosModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
           <div class="modal-content">
             <div class="modal-header">
@@ -290,7 +290,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Modal Pedidos -->
       <div class="modal fade" id="pedidosModal" tabindex="-1" aria-labelledby="pedidosModalLabel" aria-hidden="true">
@@ -380,7 +380,7 @@
       </div>
 
       <!-- Modal Requisitos -->
-      <div class="modal fade" id="requisitosModal" tabindex="-1" aria-labelledby="requisitosModalLabel" aria-hidden="true">
+      <!-- <div class="modal fade" id="requisitosModal" tabindex="-1" aria-labelledby="requisitosModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
           <div class="modal-content">
             <div class="modal-header">
@@ -414,7 +414,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Modal DatePicker -->
       <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
@@ -467,7 +467,7 @@ export default {
       rncsFiltradas: null,
       rncsFiltro: '',
       numRnc: '',
-      assRnc: '',
+      // assRnc: '',
       oriRnc: '',
       desOriRnc: '',
       origensFiltro: '',
@@ -482,16 +482,16 @@ export default {
       areasFiltro: '',
       areasFiltradas: null,
       areas: null,
-      reqIso: '',
-      desReqIso: '',
-      requisitosFiltro: '',
-      requisitosFiltrados: null,
-      requisitos: null,
-      docRnc: '',
-      desDocRnc: '',
-      doctosFiltro: '',
-      doctosFiltrados: null,
-      doctos: null,
+      // reqIso: '',
+      // desReqIso: '',
+      // requisitosFiltro: '',
+      // requisitosFiltrados: null,
+      // requisitos: null,
+      // docRnc: '',
+      // desDocRnc: '',
+      // doctosFiltro: '',
+      // doctosFiltrados: null,
+      // doctos: null,
       datRnc: null,
       conPro: '',
       jusRnc: '',
@@ -579,6 +579,7 @@ export default {
       // this.numPed = rncClicked.NUMPED
       // this.seqIpd = rncClicked.SEQIPD
       // this.seqIte = rncClicked.SEQITE
+      this.usuRnc = rncClicked.USERNAME
       document.getElementById('closeModalRncs').click()
     },
     buscarOrigens () {
@@ -798,13 +799,10 @@ export default {
           codEmp: 1,
           tipRmc: 'RNC',
           numRmc: this.numRnc,
-          assRmc: this.assRnc,
           oriRmc: this.oriRnc,
-          reqIso: this.reqIso,
           areApl: this.areRnc,
           datAud: this.datRnc.toLocaleDateString('pt-BR'),
           desNcf: this.desRnc,
-          codDoc: this.docRnc,
           conPro: this.conPro,
           jusCon: this.jusRnc,
           numPed: this.numPed > 0 ? this.numPed : 0,
@@ -836,6 +834,7 @@ export default {
         .then((response) => {
           this.checkInvalidLoginResponse(response.data)
           this.numRnc = response.data.rnc[0].NUMRMC
+          this.usuRnc = response.data.rnc[0].USERNAME
           this.iniciarCampos()
         })
         .catch((err) => {
@@ -875,6 +874,7 @@ export default {
     },
     cancelar () {
       this.numRnc = ''
+      this.usuRnc = ''
       this.iniciarCampos()
     }
   }
