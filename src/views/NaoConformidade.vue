@@ -128,9 +128,18 @@
             </div>
           </div>
           <div class="row mb-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Ação corretiva</span>
-              <textarea class="form-control custom-control" v-model="acaRnc" ref="inputAcaRnc" maxlength="1999" rows="2" style="resize:none" :disabled="numRnc === ''"></textarea>
+            <div class="col-4">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Tipo da Ação</span>
+                <input class="form-control" type="text" disabled v-model="desTipAca">
+                <button id="btnBuscaTiposAcao" class="btn btn-secondary input-group-btn btn-busca" @click="buscarTiposAcao" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#tiposAcaoModal">...</button>
+              </div>
+            </div>
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Ação corretiva</span>
+                <textarea class="form-control custom-control" v-model="acaRnc" ref="inputAcaRnc" maxlength="1999" rows="2" style="resize:none" :disabled="numRnc === ''"></textarea>
+              </div>
             </div>
           </div>
         </div>
@@ -244,6 +253,62 @@
               </div>
               <div v-else>
                 <label>Buscando áreas ...</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Tipos Ação -->
+      <div class="modal fade" id="tiposAcaoModal" tabindex="-1" aria-labelledby="tiposAcaoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="tiposAcaoModalLabel">Busca de Tipos de Ação para RNC</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalTiposAcao"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3" v-if="tiposAcao != null">
+                <input type="text" class="form-control mb-3" v-on:keyup="filtrarTiposAcao" v-model="tiposAcaoFiltro" placeholder="Digite para buscar o tipo de ação na tabela abaixo">
+                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                  <thead>
+                    <tr>
+                      <th class="sm-header" scope="col">Código</th>
+                      <th class="sm-header" scope="col">Descrição</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="tipoAcaoRow in tiposAcaoFiltrados" :key="tipoAcaoRow.CODACI" class="mouseHover" @click="selectTipoAcao(tipoAcaoRow)">
+                      <th class="fw-normal sm" scope="row">{{ tipoAcaoRow.CODACI }}</th>
+                      <th class="fw-normal sm">{{ tipoAcaoRow.DESACI }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+                <button class = 'btn btn-secondary btn-sm mb-2' @click="enableInserirTipoAcao">Inserir</button>
+                <div class="row mb-2" v-if="inserindoAtipoAcao">
+                  <div class="col-3">
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text">Código</span>
+                      <input class="form-control" v-model="codAcaoInserir" ref="inputCodAcaoInserir">
+                    </div>  
+                  </div>
+                  <div class="col-5">
+                    <div class="input-group input-group-sm">
+                      <span class="input-group-text">Descrição</span>
+                      <input class="form-control" v-model="desAcaoInserir" ref="inputDesAcaoInserir">
+                    </div>  
+                  </div>
+                  <div class="col">
+                    <button class = 'btn btn-secondary btn-sm ms-2' @click="inserirTipoAcao">Salvar</button> 
+                    <button class = 'btn btn-secondary btn-sm ms-2' @click="cancelarTipoAcao">Cancelar</button> 
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <label>Buscando tipos de ação ...</label>
               </div>
             </div>
             <div class="modal-footer">
@@ -504,6 +569,14 @@ export default {
       maxSeqIte: '',
       usuRnc: '',
       acaRnc: '',
+      tiposAcao: null,
+      tiposAcaoFiltro: '',
+      tiposAcaoFiltrados: null,
+      tipAca: '',
+      desTipAca: '',
+      inserindoAtipoAcao: false,
+      codAcaoInserir: '',
+      desAcaoInserir: '',
     }
   },
   created () {
@@ -637,6 +710,33 @@ export default {
       this.areRnc = areaClicked.CODARE
       this.desAreRnc = areaClicked.NOMARE
       document.getElementById('closeModalAreas').click()
+    },
+    buscarTiposAcao () {
+      this.tiposAcaoFiltroFiltro = ''
+      this.inserindoAtipoAcao = false
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnBuscaTiposAcao').disabled = true
+      axios.get(this.api_url + '/tiposAcaoRnc?token=' + this.token)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.tiposAcao = response.data.tiposAcao
+          this.tiposAcaoFiltrados = response.data.tiposAcao
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnBuscaTiposAcao').disabled = false
+        })
+    },
+    filtrarTiposAcao () {
+      this.tiposAcaoFiltrados = this.tiposAcao.filter(tipo => tipo.CODACI.toUpperCase().startsWith(this.tiposAcaoFiltro.toUpperCase()))
+    },
+    selectTipoAcao (tipo) {
+      this.tipAca = tipo.CODACI
+      this.desTipAca = tipo.DESACI
+      document.getElementById('closeModalTiposAcao').click()
     },
     buscarRequisitos () {
       this.requisitosFiltro = ''
@@ -877,6 +977,37 @@ export default {
       this.numRnc = ''
       this.usuRnc = ''
       this.iniciarCampos()
+    },
+    enableInserirTipoAcao () {
+      this.inserindoAtipoAcao = true
+    },
+    cancelarTipoAcao () {
+      this.inserindoAtipoAcao = false
+      this.codAcaoInserir = ''
+      this.desAcaoInserir = ''
+    },
+    inserirTipoAcao () {
+      if (this.codAcaoInserir === '' || this.codAcaoInserir === ' ' || this.desAcaoInserir === '' || this.desAcaoInserir === ' ') {
+        alert ('Favor preencher os dois campos do tipo de ação!')
+      } else {
+        document.getElementsByTagName('body')[0].style.cursor = 'wait'
+        axios.put(this.api_url + '/tipoAcaornc?token=' + this.token + '&codAcao=' + this.codAcaoInserir + '&desAcao=' + this.desAcaoInserir)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          if (response.data === 'OK') {
+            this.cancelarTipoAcao()
+            this.buscarTiposAcao()
+          } else {
+            alert(response.data)
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+        })
+      }
     }
   }
 }
@@ -892,8 +1023,8 @@ export default {
   .input-group-btn {
     width: 40px !important;
   }
-  .btn-busca {
-    width: 1.75rem !important;
+  .btn-inserir {
+    width: 2rem !important;
   }
   .mouseHover {
     cursor: pointer;
