@@ -654,6 +654,25 @@ export default {
       // this.seqIte = rncClicked.SEQITE
       this.usuRnc = rncClicked.USERNAME
       document.getElementById('closeModalRncs').click()
+      this.buscarAcaoRnc()
+    },
+    buscarAcaoRnc () {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      axios.get(this.api_url + '/acaoRnc?token=' + this.token + '&codEmp=1&tipRmc=RNC&numRmc=' + this.numRnc)
+        .then((response) => {
+          if (response.data.acaoRnc.length) {
+            const acao = response.data.acaoRnc[0]
+            this.tipAca = acao.CODACI
+            this.desTipAca = acao.DESACI
+            this.acaRnc = acao.ACITOM
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+        })  
     },
     buscarOrigens () {
       this.origensFiltro = ''
@@ -907,7 +926,9 @@ export default {
           jusCon: this.jusRnc,
           numPed: this.numPed > 0 ? this.numPed : 0,
           seqIpd: this.seqIpd > 0 ? this.seqIpd : 0,
-          seqIte: this.seqIte > 0 ? this.seqIte : 0
+          seqIte: this.seqIte > 0 ? this.seqIte : 0,
+          tipAca: this.tipAca,
+          acaRnc: this.acaRnc
         }
       })
       const headers = { headers: { 'Content-Type': 'application/json' } }
@@ -965,6 +986,9 @@ export default {
       this.seqIpd = ''
       this.desSeqIpd = ''
       this.seqIte = ''
+      this.tipAca = ''
+      this.desTipAca = ''
+      this.acaRnc = ''
     },
     checkSeqIte () {
       if (this.seqIte <= 0 || this.seqIte > this.maxSeqIte) {
