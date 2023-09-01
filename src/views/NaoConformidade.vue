@@ -540,23 +540,23 @@ export default {
     },
     buscarRncs () {
       this.rncsFiltro = ''
-      if (this.rncs === null) {
-        document.getElementsByTagName('body')[0].style.cursor = 'wait'
-        document.getElementById('btnBuscaRncs').disabled = true
-        axios.get(this.api_url + '/rncs?token=' + this.token)
-          .then((response) => {
-            this.checkInvalidLoginResponse(response.data)
-            this.rncs = response.data.rnc
-            this.rncsFiltradas = response.data.rnc
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-          .finally(() => {
-            document.getElementsByTagName('body')[0].style.cursor = 'auto'
-            document.getElementById('btnBuscaRncs').disabled = false
-          })
-      }
+      this.rncs = null
+      this.rncsFiltradas = null
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnBuscaRncs').disabled = true
+      axios.get(this.api_url + '/rncs?token=' + this.token)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.rncs = response.data.rnc
+          this.rncsFiltradas = response.data.rnc
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnBuscaRncs').disabled = false
+        })
     },
     filtrarRncs () {
       this.rncsFiltradas = this.rncs.filter(rnc => rnc.NUMRMC.toUpperCase().startsWith(this.rncsFiltro.toUpperCase()))
@@ -815,7 +815,7 @@ export default {
         .then((response) => {
           this.checkInvalidLoginResponse(response.data)
           if (response.data === 'OK') {
-            alert('RNC inserida com sucesso!')
+            alert('RNC inserida/atualizada com sucesso!')
           } else {
             alert(response.data)
           }
@@ -833,9 +833,10 @@ export default {
       axios.get(this.api_url + '/proximaRnc?token=' + this.token)
         .then((response) => {
           this.checkInvalidLoginResponse(response.data)
+          this.iniciarCampos()
           this.numRnc = response.data.rnc[0].NUMRMC
           this.usuRnc = response.data.rnc[0].USERNAME
-          this.iniciarCampos()
+          this.datePicked = new Date()
         })
         .catch((err) => {
           console.log(err)
