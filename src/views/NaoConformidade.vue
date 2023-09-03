@@ -160,19 +160,23 @@
                   <thead>
                     <tr>
                       <th class="sm-header" scope="col">Número</th>
-                      <th class="sm-header" scope="col">Assunto</th>
                       <th class="sm-header" scope="col">Origem</th>
                       <th class="sm-header" scope="col">Área</th>
                       <th class="sm-header" scope="col">Data Aud.</th>
+                      <th class="sm-header" scope="col">Pedido</th>
+                      <th class="sm-header" scope="col">Item</th>
+                      <th class="sm-header" scope="col">Seq.</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="rncRow in rncsFiltradas" :key="rncRow.NUMRMC" class="mouseHover" @click="selectRnc(rncRow)">
                       <th class="fw-normal sm" scope="row">{{ rncRow.NUMRMC }}</th>
-                      <th class="fw-normal sm">{{ rncRow.ASSRMC }}</th>
                       <th class="fw-normal sm">{{ rncRow.DESRGQ }}</th>
                       <th class="fw-normal sm">{{ rncRow.NOMARE }}</th>
                       <th class="fw-normal sm">{{ rncRow.DATAUD }}</th>
+                      <th class="fw-normal sm">{{ rncRow.NUMPED }}</th>
+                      <th class="fw-normal sm">{{ rncRow.SEQIPD }}</th>
+                      <th class="fw-normal sm">{{ rncRow.SEQITE }}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -649,9 +653,9 @@ export default {
       this.conPro = rncClicked.CONPRO
       this.jusRnc = rncClicked.JUSCON
       this.desRnc = rncClicked.DESNCF
-      // this.numPed = rncClicked.NUMPED
-      // this.seqIpd = rncClicked.SEQIPD
-      // this.seqIte = rncClicked.SEQITE
+      this.numPed = rncClicked.NUMPED
+      this.seqIpd = rncClicked.SEQIPD
+      this.seqIte = rncClicked.SEQITE
       this.usuRnc = rncClicked.USERNAME
       document.getElementById('closeModalRncs').click()
       this.buscarAcaoRnc()
@@ -889,9 +893,8 @@ export default {
     },
     download () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      // axios.get(this.api_url + '/downloadArquivoRnc?ped=' + this.numPed + '&ipd=' + this.seqIpd + '&token=' + this.token)
       axios({
-        url: this.api_url + '/downloadArquivoRnc?ped=' + this.numPed + '&ipd=' + item.seqIpd + '&token=' + this.token, 
+        url: this.api_url + '/downloadArquivoRnc?ped=' + this.numPed + '&ipd=' + this.seqIpd + '&token=' + this.token, 
         method: 'GET',
         responseType: 'blob'
       })
@@ -912,41 +915,96 @@ export default {
         })
     },
     enviarRnc () {
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      const body = JSON.stringify({
-        rnc: {
-          codEmp: 1,
-          tipRmc: 'RNC',
-          numRmc: this.numRnc,
-          oriRmc: this.oriRnc,
-          areApl: this.areRnc,
-          datAud: this.datRnc.toLocaleDateString('pt-BR'),
-          desNcf: this.desRnc,
-          conPro: this.conPro,
-          jusCon: this.jusRnc,
-          numPed: this.numPed > 0 ? this.numPed : 0,
-          seqIpd: this.seqIpd > 0 ? this.seqIpd : 0,
-          seqIte: this.seqIte > 0 ? this.seqIte : 0,
-          tipAca: this.tipAca,
-          acaRnc: this.acaRnc
-        }
-      })
-      const headers = { headers: { 'Content-Type': 'application/json' } }
-      axios.put(this.api_url + '/rnc?token=' + this.token, body, headers)
-        .then((response) => {
-          this.checkInvalidLoginResponse(response.data)
-          if (response.data === 'OK') {
-            alert('RNC inserida/atualizada com sucesso!')
-          } else {
-            alert(response.data)
+      if (this.validarRnc()) {
+        document.getElementsByTagName('body')[0].style.cursor = 'wait'
+        const body = JSON.stringify({
+          rnc: {
+            codEmp: 1,
+            tipRmc: 'RNC',
+            numRmc: this.numRnc,
+            oriRmc: this.oriRnc,
+            areApl: this.areRnc,
+            datAud: this.datRnc.toLocaleDateString('pt-BR'),
+            desNcf: this.desRnc,
+            conPro: this.conPro,
+            jusCon: this.jusRnc,
+            numPed: this.numPed > 0 ? this.numPed : 0,
+            seqIpd: this.seqIpd > 0 ? this.seqIpd : 0,
+            seqIte: this.seqIte > 0 ? this.seqIte : 0,
+            tipAca: this.tipAca,
+            acaRnc: this.acaRnc
           }
         })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => {
-          document.getElementsByTagName('body')[0].style.cursor = 'auto'
-        })
+        const headers = { headers: { 'Content-Type': 'application/json' } }
+        axios.put(this.api_url + '/rnc?token=' + this.token, body, headers)
+          .then((response) => {
+            this.checkInvalidLoginResponse(response.data)
+            if (response.data === 'OK') {
+              alert('RNC inserida/atualizada com sucesso!')
+            } else {
+              alert(response.data)
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+          .finally(() => {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          })
+      }
+    },
+    validarRnc () {
+      return this.validarOrigem() && this.validarArea() && this.validarCamposPedido() && 
+        this.validarDescricao() && this.validarProcedente() && this.validarJustificativa()
+    },
+    validarOrigem () {
+      if (this.oriRnc === '') {
+        alert('Favor informar uma origem!')
+        return false
+      }
+      return true
+    },
+    validarArea () {
+      if (this.areRnc === '') {
+        alert('Favor informar uma área!')
+        return false
+      }
+      return true
+    },
+    validarCamposPedido () {
+      if (this.numPed === '' || this.seqIpd === '' || this.seqIte === '') {
+        alert('Favor informar pedido, item e sequência!')
+        return false
+      }
+      return this.checkSeqIte()
+    },
+    checkSeqIte () {
+      if (this.seqIte <= 0 || this.seqIte > this.maxSeqIte) {
+        alert('Atenção: A sequência do item deve ser entre 1 e ' + this.maxSeqIte + '!')
+        return false
+      }
+      return true
+    },
+    validarDescricao () {
+      if (this.desRnc === '') {
+        alert('Favor informar uma descrição!')
+        return false
+      }
+      return true
+    },
+    validarProcedente () {
+      if (this.conPro === '') {
+        alert('Favor informar um valor para Conformidade Procedente!')
+        return false
+      }
+      return true
+    },
+    validarJustificativa () {
+      if (this.jusRnc === '') {
+        alert('Favor informar uma Justificativa!')
+        return false
+      }
+      return true
     },
     iniciarRnc () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
@@ -989,13 +1047,6 @@ export default {
       this.tipAca = ''
       this.desTipAca = ''
       this.acaRnc = ''
-    },
-    checkSeqIte () {
-      if (this.seqIte <= 0 || this.seqIte > this.maxSeqIte) {
-        alert('Atenção: A sequência do item deve ser entre 1 e ' + this.maxSeqIte + '!')
-        return false
-      }
-      return true
     },
     cancelar () {
       this.numRnc = ''
