@@ -12,6 +12,13 @@
               </div>
             </div>
           </div>
+          <div class="row mb-2" v-if="this.ordemProducao">
+            <div class="col">
+              <p class="sm fw-bold fst-italic">Order de produção referente ao:</p>
+              <p class="sm fw-bold fst-italic">Pedido: {{this.ordemProducao.NUMPED}} - Item: {{this.ordemProducao.SEQIPD}}</p>
+              <p class="sm fw-bold fst-italic">Produto: {{this.ordemProducao.DESPRO}}</p>
+            </div>
+          </div>
           <div class="row mb-2">
             <div class="d-grid gap-2">
               <button id="btnProcessar" class="btn btn-secondary" type="button" @click="processar" ref="btnProcessar">Processar</button>
@@ -44,7 +51,8 @@ export default {
     return {
       api_url: '',
       token: '',
-      codBarrasCab: ''
+      codBarrasCab: '',
+      ordemProducao: null
     }
   },
   created () {
@@ -80,7 +88,19 @@ export default {
       }
     },
     onEnter () {
-      this.$refs.btnProcessar.focus()
+      this.ordemProducao = null
+      const partes = this.codBarrasCab.split('.')
+      axios.get(this.api_url + '/opsAcabado?token=' + this.token + '&codEmp=' + partes[0] + '&numPed=' + partes[2] + '&seqIpd=' + partes[3])
+      .then((response) => {
+        console.log(response.data)
+        if (response.data.ops.length) {
+          this.ordemProducao = response.data.ops[0]
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+      .finally(() => this.$refs.btnProcessar.focus())
     },
     processar () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
@@ -103,6 +123,7 @@ export default {
     },
     cancelar () {
       this.codBarrasCab = ''
+      this.ordemProducao = null
       this.$refs.inputCodBarras.focus()
     }
   }
