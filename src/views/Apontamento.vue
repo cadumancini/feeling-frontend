@@ -14,8 +14,7 @@
           </div>
           <div class="row mb-2" v-if="this.ordemProducao">
             <div class="col">
-              <p class="sm fw-bold fst-italic">Order de produção referente ao:</p>
-              <p class="sm fw-bold fst-italic">Pedido: {{this.ordemProducao.NUMPED}} - Item: {{this.ordemProducao.SEQIPD}}</p>
+              <p class="sm fw-bold fst-italic">Processo: {{ this.ordemProducao.DESFAM }} - Pedido: {{this.ordemProducao.NUMPED}} - Item: {{this.ordemProducao.SEQIPD}}</p>
               <p class="sm fw-bold fst-italic">Produto: {{this.ordemProducao.DESPRO}}</p>
             </div>
           </div>
@@ -90,7 +89,7 @@ export default {
     onEnter () {
       this.ordemProducao = null
       const partes = this.codBarrasCab.split('.')
-      axios.get(this.api_url + '/opsAcabado?token=' + this.token + '&codEmp=' + partes[0] + '&numPed=' + partes[2] + '&seqIpd=' + partes[3])
+      axios.get(this.api_url + '/opsAcabado?token=' + this.token + '&codEmp=' + partes[0] + '&numPed=' + partes[2] + '&seqIpd=' + partes[3] + '&codFam=' + partes[1])
       .then((response) => {
         console.log(response.data)
         if (response.data.ops.length) {
