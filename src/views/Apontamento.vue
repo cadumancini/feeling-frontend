@@ -14,7 +14,10 @@
           </div>
           <div class="row mb-2" v-if="this.ordemProducao">
             <div class="col">
-              <p class="sm fw-bold fst-italic">Processo: {{ this.ordemProducao.DESFAM }} - Pedido: {{this.ordemProducao.NUMPED}} - Item: {{this.ordemProducao.SEQIPD}}</p>
+              <p class="sm fw-bold fst-italic">Processo: {{ this.ordemProducao.DESFAM }}</p>
+              <p class="sm fw-bold fst-italic">Pedido: {{this.ordemProducao.NUMPED}}</p>
+              <p class="sm fw-bold fst-italic">Item: {{this.ordemProducao.SEQIPD}}</p>
+              <p class="sm fw-bold fst-italic">Sequência: {{this.ordemProducao.SEQIPE}}</p>
               <p class="sm fw-bold fst-italic">Produto: {{this.ordemProducao.DESPRO}}</p>
             </div>
           </div>
@@ -94,6 +97,7 @@ export default {
         console.log(response.data)
         if (response.data.ops.length) {
           this.ordemProducao = response.data.ops[0]
+          this.orgemProducao.SEQIPE = Number(partes[4])
         }
       })
       .catch((err) => {
