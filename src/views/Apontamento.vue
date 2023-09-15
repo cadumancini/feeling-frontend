@@ -97,7 +97,7 @@ export default {
         console.log(response.data)
         if (response.data.ops.length) {
           this.ordemProducao = response.data.ops[0]
-          this.orgemProducao.SEQIPE = Number(partes[4])
+          this.ordemProducao.SEQIPE = Number(partes[4])
         }
       })
       .catch((err) => {
