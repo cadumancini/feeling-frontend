@@ -25,7 +25,7 @@
           <div class="row mb-2">
             <div class="col">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Data de Auditoria</span>
+                <span class="input-group-text">Data de Abertura</span>
                 <input id="datRnc" class="form-control" type="text" disabled :value="datRnc ? datRnc.toLocaleDateString('pt-BR') : ''">
                 <button class="btn btn-secondary input-group-btn btn-busca" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
               </div>
@@ -46,14 +46,14 @@
           <div class="row mb-2">
             <div class="col">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Origem</span>
+                <span class="input-group-text">Área de Origem</span>
                 <input id="oriRnc" class="form-control" type="text" disabled v-model="desOriRnc">
                 <button id="btnBuscaOrigens" class="btn btn-secondary input-group-btn btn-busca" @click="buscarOrigens" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#origensModal">...</button>
               </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Área</span>
+                <span class="input-group-text">Classificação</span>
                 <input id="areRnc" class="form-control" type="text" disabled v-model="desAreRnc">
                 <button id="btnBuscaAreas" class="btn btn-secondary input-group-btn btn-busca" @click="buscarAreas" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#areasModal">...</button>
               </div>
@@ -90,7 +90,7 @@
           </div>
           <div class="row mb-2">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Descrição</span>
+              <span class="input-group-text">Detalhamento do Ocorrido</span>
               <textarea class="form-control custom-control" v-model="desRnc" ref="inputDesRnc" rows="2" maxlength="1999" style="resize:none" :disabled="numRnc === ''"></textarea>
             </div>
           </div>
@@ -102,7 +102,7 @@
                 <button id="btnBuscaDoctos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarDoctos" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#doctosModal">...</button>
               </div> -->
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Conformidade Procedente</span>
+                <span class="input-group-text">Procedência</span>
                 <select class="form-select" v-model="conPro" :disabled="numRnc === ''">
                   <option selected value="S">Sim</option>
                   <option value="N">Não</option>
@@ -112,10 +112,10 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Anexos</span>
-                <label class="btn btn-sm btn-action btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)" v-bind:class="{ disabled: numRnc === '' }">
+                <label class="btn btn-sm btn-action btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)" v-bind:class="{ disabled: !rncCarregada }">
                   <font-awesome-icon icon="file-upload"/><input type="file" ref="uploadArquivo" style="display: none;" @change="onUploadArquivo"/>
                 </label>
-                <button class="btn btn-sm btn-action btn-secondary sm" @click="download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)" :disabled="numRnc === ''">
+                <button class="btn btn-sm btn-action btn-secondary sm" @click="download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)" :disabled="!rncCarregada">
                   <font-awesome-icon icon="download"/>
                 </button>
               </div>
@@ -123,21 +123,21 @@
           </div>
           <div class="row mb-2">
             <div class="input-group input-group-sm">
-              <span class="input-group-text">Justificativa</span>
+              <span class="input-group-text">Conclusão</span>
               <textarea class="form-control custom-control" v-model="jusRnc" ref="inputJusRnc" maxlength="1999" rows="2" style="resize:none" :disabled="numRnc === ''"></textarea>
             </div>
           </div>
           <div class="row mb-2">
             <div class="col-4">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Tipo da Ação</span>
+                <span class="input-group-text">Ação</span>
                 <input class="form-control" type="text" disabled v-model="desTipAca">
                 <button id="btnBuscaTiposAcao" class="btn btn-secondary input-group-btn btn-busca" @click="buscarTiposAcao" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#tiposAcaoModal">...</button>
               </div>
             </div>
             <div class="col">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Ação corretiva</span>
+                <span class="input-group-text">Descrição da Ação</span>
                 <textarea class="form-control custom-control" v-model="acaRnc" ref="inputAcaRnc" maxlength="1999" rows="2" style="resize:none" :disabled="numRnc === ''"></textarea>
               </div>
             </div>
@@ -160,8 +160,8 @@
                   <thead>
                     <tr>
                       <th class="sm-header" scope="col">Número</th>
-                      <th class="sm-header" scope="col">Origem</th>
-                      <th class="sm-header" scope="col">Área</th>
+                      <th class="sm-header" scope="col">Área de Origem</th>
+                      <th class="sm-header" scope="col">Classificação</th>
                       <th class="sm-header" scope="col">Data Aud.</th>
                       <th class="sm-header" scope="col">Pedido</th>
                       <th class="sm-header" scope="col">Item</th>
@@ -197,7 +197,7 @@
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="origensModalLabel">Busca de Origens para RNC</h5>
+              <h5 class="modal-title" id="origensModalLabel">Busca de Áreas de Origem para RNC</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalOrigens"></button>
             </div>
             <div class="modal-body">
@@ -234,7 +234,7 @@
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="areasModalLabel">Busca de Áreas para RNC</h5>
+              <h5 class="modal-title" id="areasModalLabel">Busca de Classificação para RNC</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalAreas"></button>
             </div>
             <div class="modal-body">
@@ -244,7 +244,7 @@
                   <thead>
                     <tr>
                       <th class="sm-header" scope="col">Código</th>
-                      <th class="sm-header" scope="col">Área</th>
+                      <th class="sm-header" scope="col">Classificação</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -271,12 +271,12 @@
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="tiposAcaoModalLabel">Busca de Tipos de Ação para RNC</h5>
+              <h5 class="modal-title" id="tiposAcaoModalLabel">Busca de Ação para RNC</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalTiposAcao"></button>
             </div>
             <div class="modal-body">
               <div class="mb-3" v-if="tiposAcao != null">
-                <input type="text" class="form-control mb-3" v-on:keyup="filtrarTiposAcao" v-model="tiposAcaoFiltro" placeholder="Digite para buscar o tipo de ação na tabela abaixo">
+                <input type="text" class="form-control mb-3" v-on:keyup="filtrarTiposAcao" v-model="tiposAcaoFiltro" placeholder="Digite para buscar a ação na tabela abaixo">
                 <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                   <thead>
                     <tr>
@@ -291,7 +291,7 @@
                     </tr>
                   </tbody>
                 </table>
-                <button class = 'btn btn-secondary btn-sm mb-2' @click="enableInserirTipoAcao">Inserir</button>
+                <!-- <button class = 'btn btn-secondary btn-sm mb-2' @click="enableInserirTipoAcao">Inserir</button>
                 <div class="row mb-2" v-if="inserindoAtipoAcao">
                   <div class="col-3">
                     <div class="input-group input-group-sm">
@@ -309,7 +309,7 @@
                     <button class = 'btn btn-secondary btn-sm ms-2' @click="inserirTipoAcao">Salvar</button> 
                     <button class = 'btn btn-secondary btn-sm ms-2' @click="cancelarTipoAcao">Cancelar</button> 
                   </div>
-                </div>
+                </div> -->
               </div>
               <div v-else>
                 <label>Buscando tipos de ação ...</label>
@@ -490,7 +490,7 @@
         <div class="modal-dialog modal-dialog-scrollable modal-sm">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="datePickerModalLabel">Data de Auditoria</h5>
+              <h5 class="modal-title" id="datePickerModalLabel">Selecione uma data</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDatePicker"></button>
             </div>
             <div class="modal-body">
@@ -581,6 +581,7 @@ export default {
       inserindoAtipoAcao: false,
       codAcaoInserir: '',
       desAcaoInserir: '',
+      rncCarregada: false
     }
   },
   created () {
@@ -657,6 +658,7 @@ export default {
       this.seqIpd = rncClicked.SEQIPD
       this.seqIte = rncClicked.SEQITE
       this.usuRnc = rncClicked.USERNAME
+      this.rncCarregada = true
       document.getElementById('closeModalRncs').click()
       this.buscarAcaoRnc()
     },
@@ -940,7 +942,8 @@ export default {
           .then((response) => {
             this.checkInvalidLoginResponse(response.data)
             if (response.data === 'OK') {
-              alert('RNC inserida/atualizada com sucesso!')
+              this.rncCarregada = true
+              alert('RNC inserida/atualizada com sucesso! Anexos podem ser enviados.')
             } else {
               alert(response.data)
             }
@@ -955,18 +958,18 @@ export default {
     },
     validarRnc () {
       return this.validarOrigem() && this.validarArea() && this.validarCamposPedido() && 
-        this.validarDescricao() && this.validarProcedente() && this.validarJustificativa()
+        this.validarDescricao() && this.validarProcedente() && this.validarConclusao()
     },
     validarOrigem () {
       if (this.oriRnc === '') {
-        alert('Favor informar uma origem!')
+        alert('Favor informar uma área de origem!')
         return false
       }
       return true
     },
     validarArea () {
       if (this.areRnc === '') {
-        alert('Favor informar uma área!')
+        alert('Favor informar uma classificação!')
         return false
       }
       return true
@@ -987,21 +990,21 @@ export default {
     },
     validarDescricao () {
       if (this.desRnc === '') {
-        alert('Favor informar uma descrição!')
+        alert('Favor informar o detalhamento do ocorrido!')
         return false
       }
       return true
     },
     validarProcedente () {
       if (this.conPro === '') {
-        alert('Favor informar um valor para Conformidade Procedente!')
+        alert('Favor informar um valor para procedência!')
         return false
       }
       return true
     },
-    validarJustificativa () {
+    validarConclusao () {
       if (this.jusRnc === '') {
-        alert('Favor informar uma Justificativa!')
+        alert('Favor informar uma conclusão!')
         return false
       }
       return true
@@ -1047,6 +1050,7 @@ export default {
       this.tipAca = ''
       this.desTipAca = ''
       this.acaRnc = ''
+      this.rncCarregada = false
     },
     cancelar () {
       this.numRnc = ''
