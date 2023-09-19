@@ -4,8 +4,8 @@
     <div class="mx-3 mt-1">
       <div class="row">
         <div class="border border-2 rounded-3 px-2 pt-2">
-          <div class="row mb-2">
-            <div class="col">
+          <div class="row">
+            <div class="col mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Número da RNC</span>
                 <input class="form-control" type="text" v-model="numRnc" ref="inputNumRnc" disabled>
@@ -13,7 +13,7 @@
                 <button id="btnIniciarRncs" class="btn btn-secondary input-group-btn btn-busca" @click="iniciarRnc">+</button>
               </div>
             </div>
-            <div class="col-auto">
+            <div class="col-auto mb-2">
               <button class="float-end btn-sm btn btn-secondary btn-sm ms-2" type="button" @click="cancelar" :disabled="numRnc === ''">Cancelar</button>
               <button id="btnProcessar" class="float-end btn btn-secondary btn-sm" type="button" @click="enviarRnc" ref="btnProcessar" :disabled="numRnc === ''">Processar</button>
             </div>
@@ -22,15 +22,15 @@
       </div>
       <div class="row mt-2">
         <div class="border border-2 rounded-3 px-2 pt-2">
-          <div class="row mb-2">
-            <div class="col">
+          <div class="row">
+            <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Data de Abertura</span>
                 <input id="datRnc" class="form-control" type="text" disabled :value="datRnc ? datRnc.toLocaleDateString('pt-BR') : ''">
                 <button class="btn btn-secondary input-group-btn btn-busca" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#datePickerModal">...</button>
               </div>
             </div>
-            <div class="col">
+            <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Usuário</span>
                 <input class="form-control" type="text" disabled v-model="usuRnc">
@@ -43,15 +43,15 @@
               </div>
             </div> -->
           </div>
-          <div class="row mb-2">
-            <div class="col">
+          <div class="row">
+            <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Área de Origem</span>
                 <input id="oriRnc" class="form-control" type="text" disabled v-model="desOriRnc">
                 <button id="btnBuscaOrigens" class="btn btn-secondary input-group-btn btn-busca" @click="buscarOrigens" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#origensModal">...</button>
               </div>
             </div>
-            <div class="col">
+            <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Classificação</span>
                 <input id="areRnc" class="form-control" type="text" disabled v-model="desAreRnc">
@@ -66,22 +66,22 @@
                 <button id="btnBuscaRequisitos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarRequisitos" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#requisitosModal">...</button>
               </div>
             </div> -->
-          <div class="row mb-2">
-            <div class="col-4">
+          <div class="row">
+            <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Pedido</span>
                 <input class="form-control" type="number" v-model="numPed" disabled>
                 <button id="btnBuscaPedidos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarPedidos" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#pedidosModal">...</button>
               </div>
             </div>
-            <div class="col-4">
+            <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Item</span>
                 <input class="form-control sm" v-model="desSeqIpd" disabled>
                 <button id="btnBuscaItens" class="btn btn-secondary input-group-btn btn-busca" @click="buscarItens" :disabled="numRnc === '' || numPed === ''" data-bs-toggle="modal" data-bs-target="#itensModal">...</button>
               </div>
             </div>
-            <div class="col-4">
+            <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Sequência</span>
                 <input class="form-control" type="number" v-model="seqIte" ref="inputSeqIte" :disabled="numRnc === '' || numPed === '' || seqIpd === ''">
@@ -94,8 +94,8 @@
               <textarea class="form-control custom-control" v-model="desRnc" ref="inputDesRnc" rows="2" maxlength="1999" style="resize:none" :disabled="numRnc === ''"></textarea>
             </div>
           </div>
-          <div class="row mb-2">
-            <div class="col-5">
+          <div class="row">
+            <div class="col-5 mb-2">
               <!-- <div class="input-group input-group-sm">
                 <span class="input-group-text">Documento</span>
                 <input id="docRnc" class="form-control" type="text" disabled v-model="desDocRnc">
@@ -109,7 +109,7 @@
                 </select>
               </div>
             </div>
-            <div class="col">
+            <div class="col mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Anexos</span>
                 <label class="btn btn-sm btn-action btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)" v-bind:class="{ disabled: !rncCarregada }">
@@ -127,15 +127,15 @@
               <textarea class="form-control custom-control" v-model="jusRnc" ref="inputJusRnc" maxlength="1999" rows="2" style="resize:none" :disabled="numRnc === ''"></textarea>
             </div>
           </div>
-          <div class="row mb-2">
-            <div class="col-4">
+          <div class="row">
+            <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Ação</span>
                 <input class="form-control" type="text" disabled v-model="desTipAca">
                 <button id="btnBuscaTiposAcao" class="btn btn-secondary input-group-btn btn-busca" @click="buscarTiposAcao" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#tiposAcaoModal">...</button>
               </div>
             </div>
-            <div class="col">
+            <div class="col mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Descrição da Ação</span>
                 <textarea class="form-control custom-control" v-model="acaRnc" ref="inputAcaRnc" maxlength="1999" rows="2" style="resize:none" :disabled="numRnc === ''"></textarea>
@@ -1135,5 +1135,26 @@ export default {
     background-color: #93999e;
     border-color: #8a8a8a;
     border-color: #828385;
+  }
+
+    /* For desktop: */
+  .col-1 {width: 8.33%;}
+  .col-2 {width: 16.66%;}
+  .col-3 {width: 25%;}
+  .col-4 {width: 33.33%;}
+  .col-5 {width: 41.66%;}
+  .col-6 {width: 50%;}
+  .col-7 {width: 58.33%;}
+  .col-8 {width: 66.66%;}
+  .col-9 {width: 75%;}
+  .col-10 {width: 83.33%;}
+  .col-11 {width: 91.66%;}
+  .col-12 {width: 100%;}
+
+  @media only screen and (max-width: 768px) {
+    /* For mobile phones: */
+    [class*="col-"] {
+      width: 100%;
+    }
   }
 </style>
