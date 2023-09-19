@@ -8,7 +8,7 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Cód. de Barras</span>
-                <input class="form-control" type="text" v-on:keyup.enter="onEnter" v-model="codBarrasCab" ref="inputCodBarras">
+                <input class="form-control" type="text" v-on:keyup="onKeyUp" v-on:keyup.enter="onEnter" v-model="codBarrasCab" ref="inputCodBarras">
               </div>
             </div>
           </div>
@@ -89,21 +89,25 @@ export default {
         this.$router.push({ name: 'Login' })
       }
     },
+    onKeyUp (e) {
+      if (this.codBarrasCab.length === 24 && e.keyCode !== 13) {
+        this.ordemProducao = null
+        const partes = this.codBarrasCab.split('.')
+        axios.get(this.api_url + '/opsAcabado?token=' + this.token + '&codEmp=' + partes[0] + '&numPed=' + partes[2] + '&seqIpd=' + partes[3] + '&codFam=' + partes[1])
+        .then((response) => {
+          console.log(response.data)
+          if (response.data.ops.length) {
+            this.ordemProducao = response.data.ops[0]
+            this.ordemProducao.SEQIPE = Number(partes[4])
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+      }
+    },
     onEnter () {
-      this.ordemProducao = null
-      const partes = this.codBarrasCab.split('.')
-      axios.get(this.api_url + '/opsAcabado?token=' + this.token + '&codEmp=' + partes[0] + '&numPed=' + partes[2] + '&seqIpd=' + partes[3] + '&codFam=' + partes[1])
-      .then((response) => {
-        console.log(response.data)
-        if (response.data.ops.length) {
-          this.ordemProducao = response.data.ops[0]
-          this.ordemProducao.SEQIPE = Number(partes[4])
-        }
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-      .finally(() => this.$refs.btnProcessar.focus())
+      this.$refs.btnProcessar.focus()
     },
     processar () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
