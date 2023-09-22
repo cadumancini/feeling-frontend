@@ -371,6 +371,13 @@
             </div>
             <div class="modal-body">
               <div class="mb-3" v-if="pedidos != null">
+                <div class="mb-3" v-if="empresas != null">
+                  <span>Selecione as empresas que deseja filtrar os pedidos:</span>
+                  <div v-for="empresa in empresas" :key="empresa.CODEMP" class="custom-control custom-checkbox sm">
+                    <input type="checkbox" class="custom-control-input" :id="'checkEmpresa'+empresa.CODEMP" @change="filtrarEmpresa(empresa)">
+                    <label class="custom-control-label ps-1" :for="'checkEmpresa'+empresa.CODEMP">{{ empresa.CODEMP }} - {{ empresa.NOMEMP }}</label>
+                  </div>
+                </div>
                 <input type="text" class="form-control mb-3" v-on:keyup="filtrarPedidos" v-model="pedidosFiltro" placeholder="Digite para buscar o pedido na tabela abaixo">
                 <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                   <thead>
@@ -384,7 +391,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="pedidoRow in pedidosFiltrados" :key="pedidoRow.NUMPED" class="mouseHover" @click="selectPedido(pedidoRow)">
+                    <tr v-for="pedidoRow in pedidosFiltrados.slice().reverse()" :key="pedidoRow.NUMPED" class="mouseHover" @click="selectPedido(pedidoRow)">
                       <th class="fw-normal sm" scope="row">{{ pedidoRow.CODEMP }}</th>
                       <th class="fw-normal sm">{{ pedidoRow.PEDCLI }}</th>
                       <th class="fw-normal sm">{{ pedidoRow.NUMPED }}</th>
@@ -545,6 +552,8 @@ export default {
       pedidosFiltro: '',
       pedidosFiltrados: null,
       pedidos: null,
+      empresas: null,
+      empresasFiltro: [],
       itens: null,
       areRnc: '',
       desAreRnc: '',
@@ -822,6 +831,8 @@ export default {
     buscarPedidos () {
       this.pedidos = null
       this.pedidosFiltro = ''
+      this.empresas = null
+      this.empresasFiltro = []
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       document.getElementById('btnBuscaPedidos').disabled = true
       axios.get(this.api_url + '/pedidos?token=' + this.token)
@@ -837,14 +848,35 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           document.getElementById('btnBuscaPedidos').disabled = false
         })
+
+      axios.get(this.api_url + '/empresas?token=' + this.token)
+      .then((response) => {
+        this.checkInvalidLoginResponse(response.data)
+        this.empresas = response.data.empresas
+      })
+      .catch((err) => {
+        console.log(err)
+      })
     },
     filtrarPedidos () {
       this.pedidosFiltrados = this.pedidos.filter(pedido => pedido.NUMPED.toUpperCase().startsWith(this.pedidosFiltro.toUpperCase()))
+      if (this.empresasFiltro.length) {
+        this.pedidosFiltrados = this.pedidosFiltrados.filter(pedido => this.empresasFiltro.includes(pedido.CODEMP))
+      }
     },
     selectPedido (pedido) {
       this.numPed = pedido.NUMPED
       this.empPed = pedido.CODEMP
       document.getElementById('closeModalPedidos').click()
+    },
+    filtrarEmpresa (empresa) {
+      if (document.getElementById('checkEmpresa' + empresa.CODEMP).checked) {
+        this.empresasFiltro.push(empresa.CODEMP)  
+      } else {
+        const index = this.empresasFiltro.indexOf(empresa.CODEMP);
+        this.empresasFiltro.splice(index, 1);
+      }
+      this.filtrarPedidos()
     },
     buscarItens () {
       this.itens = null
