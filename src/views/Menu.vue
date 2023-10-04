@@ -14,7 +14,7 @@
           <button class="btn btn-lg btn-secondary mb-1" @click="triggerComercial">Comercial<span class="arrow" v-text="this.expandComercial ? '▲' : '▼'"></span></button>
           <div class="submenu" v-if="expandComercial">
             <button class="btn btn-sub mb-1" v-if="hasAccess('COM-PED')" @click="access('GerarPedido')">Pedido Web</button>
-            <button class="btn btn-sub mb-1" v-if="hasAccess('XYZ-COM-AST')">Assistência Técnica</button>
+            <button class="btn btn-sub mb-1" v-if="hasAccess('COM-AST')" @click="access('AssistenciaTecnica')">Assistência Técnica</button>
           </div>
         </div>
         <div class="menu-context row mb-2 px-2 pt-2" v-if="hasAccess('PRD-')">

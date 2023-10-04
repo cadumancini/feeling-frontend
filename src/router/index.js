@@ -6,6 +6,7 @@ import Menu from '../views/Menu.vue'
 import Separacao from '../views/Separacao.vue'
 import Apontamento from '../views/Apontamento.vue'
 import NaoConformidade from '../views/NaoConformidade.vue'
+import AssistenciaTecnica from '../views/AssistenciaTecnica.vue'
 
 const routes = [
   {
@@ -37,6 +38,11 @@ const routes = [
     path: '/nao-conformidade',
     name: 'NaoConformidade',
     component: NaoConformidade
+  },
+  {
+    path: '/assistencia-tecnica',
+    name: 'AssistenciaTecnica',
+    component: AssistenciaTecnica
   },
   {
     path: '/login',
