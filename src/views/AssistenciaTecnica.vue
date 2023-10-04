@@ -26,15 +26,15 @@
             <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Nota Fiscal</span>
-                <input class="form-control" type="text" v-model="numNfv" :disabled="numAss === ''">
+                <input class="form-control" type="text" v-model="numNfc" :disabled="numAss === ''">
                 <button id="btnBuscaNotas" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === ''" @click="buscarNotas" data-bs-toggle="modal" data-bs-target="#notasFiscaisModal">...</button>
               </div>
             </div>
             <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Item da Nota</span>
-                <input class="form-control" type="text" v-model="seqNfv" :disabled="numAss === ''">
-                <button class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === '' || numNfv === ''" @click="buscarItensNF" data-bs-toggle="modal" data-bs-target="#itensNotaModal">...</button>
+                <input class="form-control" type="text" v-model="seqNfc" :disabled="numAss === ''">
+                <button class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === '' || numNfc === ''" @click="buscarItensNF" data-bs-toggle="modal" data-bs-target="#itensNotaModal">...</button>
               </div>
             </div>
           </div>
@@ -185,6 +185,60 @@
             <div class="input-group input-group-sm">
               <span class="input-group-text">Outras Observações</span>
               <textarea class="form-control custom-control" v-model="outObs" ref="inputDesRnc" rows="2" maxlength="1999" style="resize:none" :disabled="numAss === ''"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Notas -->
+      <div class="modal fade" id="notasFiscaisModal" tabindex="-1" aria-labelledby="notasFiscaisModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="notasFiscaisModalLabel">Busca de Notas Fiscais</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalNotas"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3" v-if="notasFiscais != null">
+                <span>Filtrar Nota por: </span>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" v-on:change="zerarFiltro" type="radio" name="inlineRadioOptions" id="inlineRadioNota" value="nota" v-model="tipoFiltroNF">
+                  <label class="form-check-label" for="inlineRadioNota">Número da Nota</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" v-on:change="zerarFiltro" type="radio" name="inlineRadioOptions" id="inlineRadioForn" value="forn" v-model="tipoFiltroNF">
+                  <label class="form-check-label" for="inlineRadioForn">Nome do Fornecedor</label>
+                </div>
+                <input type="text" class="form-control mb-3" v-on:keyup="filtrarNotas" v-model="notasFiscaisFiltro" placeholder="Digite para buscar a Nota na tabela abaixo">
+                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                  <thead>
+                    <tr>
+                      <th class="sm-header" scope="col">Empresa</th>
+                      <th class="sm-header" scope="col">Cód. Fornecedor</th>
+                      <th class="sm-header" scope="col">Fornecedor</th>
+                      <th class="sm-header" scope="col">Série</th>
+                      <th class="sm-header" scope="col">Nota</th>
+                      <th class="sm-header" scope="col">Data de Entrada</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="nfRow in notasFiscaisFiltradas" :key="nfRow.CODEMP + nfRow.CODFOR + nfRow.CODSNF + nfRow.NUMNFC" class="mouseHover" @click="selectNota(nfRow)">
+                      <th class="fw-normal sm" scope="row">{{ nfRow.CODEMP }}</th>
+                      <th class="fw-normal sm">{{ nfRow.CODFOR }}</th>
+                      <th class="fw-normal sm">{{ nfRow.NOMFOR }}</th>
+                      <th class="fw-normal sm">{{ nfRow.CODSNF }}</th>
+                      <th class="fw-normal sm">{{ nfRow.NUMNFC }}</th>
+                      <th class="fw-normal sm">{{ nfRow.DATENT }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else>
+                <label>Buscando Notas Fiscais ...</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
             </div>
           </div>
         </div>
@@ -440,8 +494,8 @@ export default {
       codFil: '',
       codFor: '',
       snfNfe: '',
-      numNfv: '',
-      seqNfv: '',
+      numNfc: '',
+      seqNfc: '',
       notasFiscais: null,
       notasFiscaisFiltradas: null,
       notasFiscaisFiltro: '',
@@ -525,6 +579,25 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           document.getElementById('btnBuscaNotas').disabled = false
         })
+    },
+    filtrarNotas () {
+        if (this.tipoFiltroNF === 'nota') {
+          this.notasFiscaisFiltradas = this.notasFiscais.filter(nota => nota.NUMNFC.toUpperCase().startsWith(this.notasFiscaisFiltro.toUpperCase()))
+        } else if (this.tipoFiltroNF === 'forn') {
+          this.notasFiscaisFiltradas = this.notasFiscais.filter(nota => nota.NOMFOR.toUpperCase().startsWith(this.notasFiscaisFiltro.toUpperCase()))
+        }   
+    },
+    zerarFiltro () {
+      this.notasFiscaisFiltro = ''
+      this.notasFiscaisFiltradas = this.notasFiscais
+    },
+    selectNota (nota) {
+      this.codEmp = nota.CODEMP
+      this.codFil = nota.CODFIL
+      this.codFor = nota.CODFOR
+      this.snfNfe = nota.CODSNF
+      this.numNfc = nota.NUMNFC
+      document.getElementById('closeModalNotas').click()
     },
     iniciarCampos () {
     },
