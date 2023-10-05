@@ -26,15 +26,15 @@
             <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Nota Fiscal</span>
-                <input class="form-control" type="text" v-model="numNfc" :disabled="numAss === ''">
+                <input class="form-control" type="text" v-model="numNfc" disabled placeholder="Clique ao lado para selecionar">
                 <button id="btnBuscaNotas" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === ''" @click="buscarNotas" data-bs-toggle="modal" data-bs-target="#notasFiscaisModal">...</button>
               </div>
             </div>
             <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Item da Nota</span>
-                <input class="form-control" type="text" v-model="seqNfc" :disabled="numAss === ''">
-                <button class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === '' || numNfc === ''" @click="buscarItensNF" data-bs-toggle="modal" data-bs-target="#itensNotaModal">...</button>
+                <input class="form-control" type="text" v-model="desIpc" disabled placeholder="Clique ao lado para selecionar">
+                <button id="btnBuscaItensNF" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === '' || numNfc === ''" @click="buscarItensNF" data-bs-toggle="modal" data-bs-target="#itensNotaModal">...</button>
               </div>
             </div>
           </div>
@@ -235,6 +235,42 @@
               </div>
               <div v-else>
                 <label>Buscando Notas Fiscais ...</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Itens NF -->
+      <div class="modal fade" id="itensNotaModal" tabindex="-1" aria-labelledby="itensNotaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="itensNotaModalLabel">Busca de Itens da Nota Fiscal</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalItensNF"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3" v-if="itensNota != null">
+                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                  <thead>
+                    <tr>
+                      <th class="sm-header" scope="col">Seq.</th>
+                      <th class="sm-header" scope="col">Produto</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="ipcRow in itensNota" :key="ipcRow.SEQIPC" class="mouseHover" @click="selectItemNota(ipcRow)">
+                      <th class="fw-normal sm" scope="row">{{ ipcRow.SEQIPC }}</th>
+                      <th class="fw-normal sm">{{ ipcRow.CPLIPC }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else>
+                <label>Buscando Itens da Nota Fiscal ...</label>
               </div>
             </div>
             <div class="modal-footer">
@@ -493,9 +529,16 @@ export default {
       codEmp: '',
       codFil: '',
       codFor: '',
-      snfNfe: '',
+      snfNfc: '',
       numNfc: '',
-      seqNfc: '',
+      seqIpc: '',
+      cplIpc: '',
+      desIpc: '',
+      empNfv: '',
+      filNfv: '',
+      snfNfv: '',
+      numNfv: '',
+      seqIpv: '',
       notasFiscais: null,
       notasFiscaisFiltradas: null,
       notasFiscaisFiltro: '',
@@ -595,9 +638,56 @@ export default {
       this.codEmp = nota.CODEMP
       this.codFil = nota.CODFIL
       this.codFor = nota.CODFOR
-      this.snfNfe = nota.CODSNF
+      this.snfNfc = nota.CODSNF
       this.numNfc = nota.NUMNFC
+
+      
+      this.seqIpc = ''
+      this.cplIpc = ''
+      this.desIpc = ''
+      this.empNfv = ''
+      this.filNfv = ''
+      this.snfNfv = ''
+      this.numNfv = ''
+      this.seqIpv = ''
       document.getElementById('closeModalNotas').click()
+    },
+    buscarItensNF () {
+      this.itensNota = null
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnBuscaItensNF').disabled = true
+      axios.get(this.api_url + '/itensNota?token=' + this.token + '&codEmp=' + this.codEmp + '&codFil=' + 
+                this.codFil + '&codFor=' + this.codFor + '&numNfc=' + this.numNfc + '&codSnf=' + this.snfNfc)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.itensNota = response.data.itens
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnBuscaItensNF').disabled = false
+        })
+    },
+    selectItemNota (item) {
+      this.seqIpc = item.SEQIPC
+      this.cplIpc = item.CPLIPC
+      this.desIpc = item.SEQIPC + ' - ' + item.CPLIPC
+      this.empNfv = item.EMPNFV
+      this.filNfv = item.FILNFV
+      this.snfNfv = item.SNFNFV
+      this.numNfv = item.NUMNFV
+      this.seqIpv = item.SEQIPV
+      document.getElementById('closeModalItensNF').click()
+
+      // TODO: buscar pedido através de nota de saída
+      // se achar, preencher
+      // se nao, avisar e mandar usuario selecionar pedido
+
+      // TODO: ao selecionar um pedido manualmente:
+      // se a nota estiver em branco, buscar qual a nota de entrada
+      // se estiver preenchida, buscar a nota e se for diferente, avisar e perguntar se usuario quer trocar
     },
     iniciarCampos () {
     },
