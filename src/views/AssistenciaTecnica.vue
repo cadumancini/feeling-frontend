@@ -64,7 +64,7 @@
             <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Representada</span>
-                <input class="form-control" type="number" v-model="desRep" disabled>
+                <input class="form-control sm" v-model="desRep" disabled>
               </div>
             </div>
             <div class="col-4 mb-2">
@@ -544,9 +544,17 @@ export default {
       notasFiscaisFiltro: '',
       itensNota: null,
       tipoFiltroNF: null,
+      pedidosFiltro: '',
+      pedidosFiltrados: null,
+      pedidos: null,
+      empresas: null,
+      empresasFiltro: [],
+      itens: null,
       numPed: '',
+      empPed: '',
       seqIpd: '',
       desSeqIpd: '',
+      maxSeqIte: '',
       seqIte: '',
       desRep: '',
       desCli: '',
@@ -641,7 +649,6 @@ export default {
       this.snfNfc = nota.CODSNF
       this.numNfc = nota.NUMNFC
 
-      
       this.seqIpc = ''
       this.cplIpc = ''
       this.desIpc = ''
@@ -693,6 +700,81 @@ export default {
     },
     cancelar () {
       this.iniciarCampos()
+    },
+    buscarPedidos () {
+      this.pedidos = null
+      this.pedidosFiltro = ''
+      this.empresas = null
+      this.empresasFiltro = []
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnBuscaPedidos').disabled = true
+      axios.get(this.api_url + '/pedidos?token=' + this.token)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.pedidos = response.data.pedidos
+          this.pedidosFiltrados = response.data.pedidos
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnBuscaPedidos').disabled = false
+        })
+
+      axios.get(this.api_url + '/empresas?token=' + this.token)
+      .then((response) => {
+        this.checkInvalidLoginResponse(response.data)
+        this.empresas = response.data.empresas
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    },
+    filtrarPedidos () {
+      this.pedidosFiltrados = this.pedidos.filter(pedido => pedido.NUMPED.toUpperCase().startsWith(this.pedidosFiltro.toUpperCase()))
+      if (this.empresasFiltro.length) {
+        this.pedidosFiltrados = this.pedidosFiltrados.filter(pedido => this.empresasFiltro.includes(pedido.CODEMP))
+      }
+    },
+    selectPedido (pedido) {
+      this.numPed = pedido.NUMPED
+      this.empPed = pedido.CODEMP
+      this.desCli = pedido.NOMCLI
+      this.desRep = pedido.NOMREP
+      document.getElementById('closeModalPedidos').click()
+    },
+    filtrarEmpresa (empresa) {
+      if (document.getElementById('checkEmpresa' + empresa.CODEMP).checked) {
+        this.empresasFiltro.push(empresa.CODEMP)  
+      } else {
+        const index = this.empresasFiltro.indexOf(empresa.CODEMP);
+        this.empresasFiltro.splice(index, 1);
+      }
+      this.filtrarPedidos()
+    },
+    buscarItens () {
+      this.itens = null
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnBuscaItens').disabled = true
+      axios.get(this.api_url + '/itensPedido?emp=' + this.empPed + '&fil=1&ped=' + this.numPed + '&token=' + this.token)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.itens = response.data.itens
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnBuscaItens').disabled = false
+        })
+    },
+    selectItem (item) {
+      this.seqIpd = item.SEQIPD
+      this.desSeqIpd = item.SEQIPD + ' - ' + item.DSCPRO
+      this.maxSeqIte = item.QTDPED
+      document.getElementById('closeModalItens').click()
     },
     onUploadArquivo () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
