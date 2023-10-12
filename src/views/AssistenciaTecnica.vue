@@ -688,13 +688,28 @@ export default {
       this.seqIpv = item.SEQIPV
       document.getElementById('closeModalItensNF').click()
 
-      // TODO: buscar pedido através de nota de saída
-      // se achar, preencher
-      // se nao, avisar e mandar usuario selecionar pedido
-
-      // TODO: ao selecionar um pedido manualmente:
-      // se a nota estiver em branco, buscar qual a nota de entrada
-      // se estiver preenchida, buscar a nota e se for diferente, avisar e perguntar se usuario quer trocar
+      if (this.numPed === '') {
+        console.log('buscar pedido')
+        this.buscarPedidoBaseadoEmNota()
+      }
+    },
+    buscarPedidoBaseadoEmNota() {
+      axios.get(this.api_url + '/pedidoPorNota?token=' + this.token + '&codEmp=' + this.codEmp + '&codFil=' + 
+                this.codFil + '&snfNfv=' + this.snfNfv + '&numNfv=' + this.numNfv + '&seqIpv=' + this.seqIpv)
+      .then((response) => {
+        alert('Pedido correspondente encontrado! Os dados foram preenchidos automaticamente.')
+        this.checkInvalidLoginResponse(response.data)
+        this.numPed = response.data.pedido[0].NUMPED
+        this.empPed = this.codEmp
+        this.desCli = response.data.pedido[0].NOMCLI
+        this.desRep = response.data.pedido[0].NOMREP
+        this.seqIpd = response.data.pedido[0].SEQIPD
+        this.desSeqIpd = response.data.pedido[0].SEQIPD + ' - ' + response.data.pedido[0].DSCPRO
+        this.maxSeqIte = response.data.pedido[0].QTDPED
+      })
+      .catch((err) => {
+        console.log(err)
+      })
     },
     iniciarCampos () {
     },
@@ -775,6 +790,10 @@ export default {
       this.desSeqIpd = item.SEQIPD + ' - ' + item.DSCPRO
       this.maxSeqIte = item.QTDPED
       document.getElementById('closeModalItens').click()
+
+      // TODO: ao selecionar um pedido manualmente:
+      // se a nota estiver em branco, buscar qual a nota de entrada
+      // se estiver preenchida, buscar a nota e se for diferente, avisar e perguntar se usuario quer trocar
     },
     onUploadArquivo () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
