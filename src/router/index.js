@@ -37,7 +37,8 @@ const routes = [
   {
     path: '/nao-conformidade',
     name: 'NaoConformidade',
-    component: NaoConformidade
+    component: NaoConformidade,
+    props: { showNavBar: true, origem: 'menu' }
   },
   {
     path: '/assistencia-tecnica',

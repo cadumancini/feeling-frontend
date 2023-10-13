@@ -1,6 +1,6 @@
 <template>
   <div class="naoConformidade">
-    <Navbar title="Registro de Não Conformidade"/>
+    <Navbar v-if="showNavBar" title="Registro de Não Conformidade"/>
     <div class="mx-3 mt-1">
       <div class="row">
         <div class="border border-2 rounded-3 px-2 pt-2">
@@ -9,7 +9,7 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Número da RNC</span>
                 <input class="form-control" type="text" v-model="numRnc" ref="inputNumRnc" disabled>
-                <button id="btnBuscaRncs" class="btn btn-secondary input-group-btn btn-busca" @click="buscarRncs" data-bs-toggle="modal" data-bs-target="#rncsModal">...</button>
+                <button v-if="origem === 'menu'" id="btnBuscaRncs" class="btn btn-secondary input-group-btn btn-busca" @click="buscarRncs" data-bs-toggle="modal" data-bs-target="#rncsModal">...</button>
                 <button id="btnIniciarRncs" class="btn btn-secondary input-group-btn btn-busca" @click="iniciarRnc">+</button>
               </div>
             </div>
@@ -605,6 +605,10 @@ export default {
       this.$refs.inputNumRnc.focus()
     }
   },
+  props: {
+    showNavBar: Boolean,
+    origem: String
+  },
   methods: {
     checkAccess() {
       axios.get(this.api_url + '/telasDisponiveis?token=' + this.token + '&tela=PRD-NCN')
@@ -975,6 +979,7 @@ export default {
             this.checkInvalidLoginResponse(response.data)
             if (response.data === 'OK') {
               this.rncCarregada = true
+              this.$emit("finalizar", this.numRnc);
               alert('RNC inserida/atualizada com sucesso! Anexos podem ser enviados.')
             } else {
               alert(response.data)

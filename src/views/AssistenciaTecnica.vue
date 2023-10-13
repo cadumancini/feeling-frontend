@@ -14,8 +14,8 @@
               </div>
             </div>
             <div class="col-auto mb-2">
-              <button class="float-end btn-sm btn btn-secondary btn-sm ms-2" type="button" @click="cancelar" :disabled="numRnc === ''">Cancelar</button>
-              <button id="btnProcessar" class="float-end btn btn-secondary btn-sm" type="button" @click="enviarAss" ref="btnProcessar" :disabled="numRnc === ''">Processar</button>
+              <button class="float-end btn-sm btn btn-secondary btn-sm ms-2" type="button" @click="cancelar" :disabled="numAss === ''">Cancelar</button>
+              <button id="btnProcessar" class="float-end btn btn-secondary btn-sm" type="button" @click="enviarAss" ref="btnProcessar" :disabled="numAss === ''">Processar</button>
             </div>
           </div>
         </div>
@@ -177,7 +177,8 @@
                 <span class="input-group-text">Número RNC</span>
                 <input class="form-control" type="text" v-model="numRnc" ref="inputNumRnc" disabled>
                 <button id="btnBuscaRncs" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === ''" @click="buscarRncs" data-bs-toggle="modal" data-bs-target="#rncsModal">...</button>
-                <button id="btnIniciarRncs" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === ''" @click="iniciarRnc">+</button>
+                <button id="btnIniciarRncs" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === ''" @click="abrirNovaRnc">+</button>
+                <RncModal v-if="isRncVisible" @close="closeModal" />
               </div>
             </div>
           </div>
@@ -486,12 +487,13 @@
 <script>
 import axios from 'axios'
 import Navbar from '../components/Navbar.vue'
+import RncModal from '../components/RncModal.vue'
 import { DatePicker } from 'v-calendar';
 import 'v-calendar/style.css';
 
 export default {
   name: 'AssistenciaTecnica',
-  components: { Navbar, DatePicker },
+  components: { Navbar, RncModal, DatePicker },
   computed: {
     dateAbePicked: {
       get() {
@@ -575,6 +577,11 @@ export default {
       origens: null,
       origensFiltradas: null,
       origensFiltro: '',
+      numRnc: '',
+      rncsFiltro: '',
+      rncs: null,
+      rncsFiltradas: null,
+      isRncVisible: false
     }
   },
   created () {
@@ -890,6 +897,40 @@ export default {
       this.desOriAss = origemClicked.DESRGQ
       document.getElementById('closeModalOrigens').click()
     },
+    buscarRncs () {
+      this.rncsFiltro = ''
+      this.rncs = null
+      this.rncsFiltradas = null
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnBuscaRncs').disabled = true
+      axios.get(this.api_url + '/rncs?token=' + this.token)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.rncs = response.data.rnc
+          this.rncsFiltradas = response.data.rnc
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnBuscaRncs').disabled = false
+        })
+    },
+    filtrarRncs () {
+      this.rncsFiltradas = this.rncs.filter(rnc => rnc.NUMRMC.toUpperCase().startsWith(this.rncsFiltro.toUpperCase()))
+    },
+    selectRnc (rncClicked) {
+      this.numRnc = rncClicked.NUMRMC
+      document.getElementById('closeModalRncs').click()
+    },
+    abrirNovaRnc () {
+      this.isRncVisible = true;
+    },
+    closeModal(numRnc) {
+      this.isRncVisible = false;
+      if (numRnc !== '') this.numRnc = numRnc
+    }
   }
 }
 </script>
