@@ -26,14 +26,14 @@
             <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Nota Fiscal</span>
-                <input class="form-control" type="text" v-model="numNfc" disabled placeholder="Clique ao lado para selecionar">
+                <input class="form-control" type="text" v-model="numNfc" disabled>
                 <button id="btnBuscaNotas" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === ''" @click="buscarNotas" data-bs-toggle="modal" data-bs-target="#notasFiscaisModal">...</button>
               </div>
             </div>
             <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Item da Nota</span>
-                <input class="form-control" type="text" v-model="desIpc" disabled placeholder="Clique ao lado para selecionar">
+                <input class="form-control" type="text" v-model="desIpc" disabled>
                 <button id="btnBuscaItensNF" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === '' || numNfc === ''" @click="buscarItensNF" data-bs-toggle="modal" data-bs-target="#itensNotaModal">...</button>
               </div>
             </div>
@@ -552,6 +552,7 @@ export default {
       itens: null,
       numPed: '',
       empPed: '',
+      filPed: '',
       seqIpd: '',
       desSeqIpd: '',
       maxSeqIte: '',
@@ -689,7 +690,6 @@ export default {
       document.getElementById('closeModalItensNF').click()
 
       if (this.numPed === '') {
-        console.log('buscar pedido')
         this.buscarPedidoBaseadoEmNota()
       }
     },
@@ -697,15 +697,18 @@ export default {
       axios.get(this.api_url + '/pedidoPorNota?token=' + this.token + '&codEmp=' + this.codEmp + '&codFil=' + 
                 this.codFil + '&snfNfv=' + this.snfNfv + '&numNfv=' + this.numNfv + '&seqIpv=' + this.seqIpv)
       .then((response) => {
-        alert('Pedido correspondente encontrado! Os dados foram preenchidos automaticamente.')
         this.checkInvalidLoginResponse(response.data)
-        this.numPed = response.data.pedido[0].NUMPED
-        this.empPed = this.codEmp
-        this.desCli = response.data.pedido[0].NOMCLI
-        this.desRep = response.data.pedido[0].NOMREP
-        this.seqIpd = response.data.pedido[0].SEQIPD
-        this.desSeqIpd = response.data.pedido[0].SEQIPD + ' - ' + response.data.pedido[0].DSCPRO
-        this.maxSeqIte = response.data.pedido[0].QTDPED
+        if (response.data.pedido.length > 0) {
+          alert('Pedido correspondente encontrado! Os dados foram preenchidos automaticamente.')
+          this.numPed = response.data.pedido[0].NUMPED
+          this.empPed = this.codEmp
+          this.filPed = this.codFil
+          this.desCli = response.data.pedido[0].NOMCLI
+          this.desRep = response.data.pedido[0].NOMREP
+          this.seqIpd = response.data.pedido[0].SEQIPD
+          this.desSeqIpd = response.data.pedido[0].SEQIPD + ' - ' + response.data.pedido[0].DSCPRO
+          this.maxSeqIte = response.data.pedido[0].QTDPED
+        }
       })
       .catch((err) => {
         console.log(err)
@@ -755,6 +758,7 @@ export default {
     selectPedido (pedido) {
       this.numPed = pedido.NUMPED
       this.empPed = pedido.CODEMP
+      this.filPed = pedido.CODFIL
       this.desCli = pedido.NOMCLI
       this.desRep = pedido.NOMREP
       document.getElementById('closeModalPedidos').click()
@@ -791,9 +795,25 @@ export default {
       this.maxSeqIte = item.QTDPED
       document.getElementById('closeModalItens').click()
 
-      // TODO: ao selecionar um pedido manualmente:
-      // se a nota estiver em branco, buscar qual a nota de entrada
-      // se estiver preenchida, buscar a nota e se for diferente, avisar e perguntar se usuario quer trocar
+      if(this.numNfc === '') {
+        this.buscarNotaBaseadoEmPedido()
+      }
+    },
+    buscarNotaBaseadoEmPedido() {
+      axios.get(this.api_url + '/notaPorPedido?token=' + this.token + '&codEmp=' + this.empPed + '&codFil=' + 
+                this.filPed + '&numPed=' + this.numPed + '&seqIpd=' + this.seqIpd)
+      .then((response) => {
+        this.checkInvalidLoginResponse(response.data)
+        if(response.data.nota.length > 0) {
+          alert('Nota correspondente encontrada! Os dados foram preenchidos automaticamente.')
+          const nota = response.data.nota[0]
+          this.selectNota(nota)
+          this.selectItemNota(nota)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
     },
     onUploadArquivo () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
