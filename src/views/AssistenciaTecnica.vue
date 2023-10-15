@@ -138,7 +138,7 @@
             <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Área de Origem</span>
-                <input id="oriRnc" class="form-control" type="text" disabled v-model="desOriRnc">
+                <input id="oriRnc" class="form-control" type="text" disabled v-model="desOriAss">
                 <button id="btnBuscaOrigens" class="btn btn-secondary input-group-btn btn-busca" @click="buscarOrigens" :disabled="numAss === ''" data-bs-toggle="modal" data-bs-target="#origensModal">...</button>
               </div>
             </div>
@@ -527,7 +527,7 @@ export default {
     return {
       api_url: '',
       token: '',
-      numAss: '1',
+      numAss: '',
       codEmp: '',
       codFil: '',
       codFor: '',
@@ -615,6 +615,23 @@ export default {
         sessionStorage.removeItem('token')
         this.$router.push({ name: 'Login' })
       }
+    },
+    iniciarAss () {
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnIniciarAss').disabled = true
+      axios.get(this.api_url + '/proximaAssistencia?token=' + this.token)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.iniciarCampos()
+          this.numAss = response.data.assistencia[0].NUMASS
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnIniciarAss').disabled = false
+        })
     },
     selectDate (model) {
       this.datClick = model
@@ -722,8 +739,43 @@ export default {
       })
     },
     iniciarCampos () {
+      this.codEmp = ''
+      this.codFil = ''
+      this.codFor = ''
+      this.snfNfc = ''
+      this.numNfc = ''
+      this.seqIpc = ''
+      this.cplIpc = ''
+      this.desIpc = ''
+      this.empNfv = ''
+      this.filNfv = ''
+      this.snfNfv = ''
+      this.numNfv = ''
+      this.seqIpv = ''
+      this.numPed = ''
+      this.empPed = ''
+      this.filPed = ''
+      this.desCli = ''
+      this.desRep = ''
+      this.seqIpd = ''
+      this.desSeqIpd = ''
+      this.seqIte = ''
+      this.maxSeqIte = ''
+      this.datAbe = ''
+      this.datFec = ''
+      this.recCli = ''
+      this.avaAss = ''
+      this.outObs = ''
+      this.assPrc = ''
+      this.tipFre = ''
+      this.numOri = ''
+      this.desOriAss = ''
+      this.dscCrt = ''
+      this.datChe = ''
+      this.numRnc = ''
     },
     cancelar () {
+      this.numAss = ''
       this.iniciarCampos()
     },
     buscarPedidos () {
