@@ -63,17 +63,23 @@
           <div class="row">
             <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
+                <span class="input-group-text">Nº Série</span>
+                <input class="form-control sm" v-model="numSep" :disabled="numAss === ''">
+              </div>
+            </div>
+            <div class="col-3 mb-2">
+              <div class="input-group input-group-sm">
                 <span class="input-group-text">Representada</span>
                 <input class="form-control sm" v-model="desRep" disabled>
               </div>
             </div>
-            <div class="col-4 mb-2">
+            <div class="col-3 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Cliente</span>
                 <input class="form-control sm" v-model="desCli" disabled>
               </div>
             </div>
-            <div class="col-4 mb-2">
+            <div class="col-2 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Anexos</span>
                 <label class="btn btn-sm btn-action btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)" v-bind:class="{ disabled: !assCarregada }">
@@ -328,6 +334,51 @@
         </div>
       </div>
 
+      <!-- Modal Assistencias -->
+      <div class="modal fade" id="assModal" tabindex="-1" aria-labelledby="assModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="assModalLabel">Busca de Registros de Assistência Técnica</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalAss"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3" v-if="assistencias != null">
+                <input type="text" class="form-control mb-3" v-on:keyup="filtrarAssistencias" v-model="assistenciasFiltro" placeholder="Digite para buscar a Assistência Técnica na tabela abaixo">
+                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                  <thead>
+                    <tr>
+                      <th class="sm-header" scope="col">Número</th>
+                      <th class="sm-header" scope="col">Área de Origem</th>
+                      <th class="sm-header" scope="col">Data Abertura</th>
+                      <th class="sm-header" scope="col">Pedido</th>
+                      <th class="sm-header" scope="col">Item</th>
+                      <th class="sm-header" scope="col">Seq.</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="assRow in assistenciasFiltradas" :key="assRow.NUMASS" class="mouseHover" @click="selectAssistencia(assRow)">
+                      <th class="fw-normal sm" scope="row">{{ assRow.NUMASS }}</th>
+                      <th class="fw-normal sm">{{ assRow.DESRGQ }}</th>
+                      <th class="fw-normal sm">{{ assRow.DATGER }}</th>
+                      <th class="fw-normal sm">{{ assRow.NUMPED }}</th>
+                      <th class="fw-normal sm">{{ assRow.SEQIPD }}</th>
+                      <th class="fw-normal sm">{{ assRow.SEQIPE }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else>
+                <label>Buscando Assistências ...</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Modal Origens -->
       <div class="modal fade" id="origensModal" tabindex="-1" aria-labelledby="origensModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-lg">
@@ -541,6 +592,9 @@ export default {
       snfNfv: '',
       numNfv: '',
       seqIpv: '',
+      assistenciasFiltro: '',
+      assistencias: null,
+      assistenciasFiltradas: null,
       notasFiscais: null,
       notasFiscaisFiltradas: null,
       notasFiscaisFiltro: '',
@@ -559,6 +613,7 @@ export default {
       desSeqIpd: '',
       maxSeqIte: '',
       seqIte: '',
+      numSep: '',
       desRep: '',
       desCli: '',
       assCarregada: false,
@@ -624,6 +679,7 @@ export default {
           this.checkInvalidLoginResponse(response.data)
           this.iniciarCampos()
           this.numAss = response.data.assistencia[0].NUMASS
+          this.dateAbePicked = new Date()
         })
         .catch((err) => {
           console.log(err)
@@ -632,6 +688,119 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           document.getElementById('btnIniciarAss').disabled = false
         })
+    },
+    buscarAss () {
+      this.assistenciasFiltro = ''
+      this.assistencias = null
+      this.assistenciasFiltradas = null
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnBuscaAss').disabled = true
+      axios.get(this.api_url + '/assistencias?token=' + this.token)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.assistencias = response.data.assistencias
+          this.assistenciasFiltradas = response.data.assistencias
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnBuscaAss').disabled = false
+        })
+    },
+    selectAssistencia (assist) {
+      this.numAss = assist.NUMASS
+      this.codEmp = assist.CODEMP
+      this.codFil = assist.CODFIL
+      this.codFor = assist.CODFOR
+      this.snfNfc = assist.SNFNFE
+      this.numNfc = assist.NUMNFC
+      this.seqIpc = assist.SEQIPC
+      this.cplIpc = assist.CPLIPC
+      this.desIpc = assist.SEQIPC + ' - ' + assist.CPLIPC
+      this.empNfv = assist.EMPNFV
+      this.filNfv = assist.FILNFV
+      this.snfNfv = assist.SNFNFV
+      this.numNfv = assist.NUMNFV
+      this.seqIpv = assist.SEQIPV
+      this.numPed = assist.NUMPED
+      this.seqIpd = assist.SEQIPD
+      this.empPed = assist.CODEMP
+      this.filPed = assist.CODFIL
+      this.desCli = assist.NOMCLI
+      this.desRep = assist.NOMREP
+      this.desSeqIpd = assist.SEQIPD + ' - ' + assist.DSCPRO
+      this.seqIte = assist.SEQIPE
+      this.maxSeqIte = assist.QTDPED
+      this.numSep = assist.NUMSEP
+      this.dateAbePicked = new Date(assist.DATGER.substring(6, 10) + '-' + assist.DATGER.substring(3, 5) + '-' + assist.DATGER.substring(0, 2) + 'T00:00:00')
+      this.dateFecPicked = new Date(assist.DATFEC.substring(6, 10) + '-' + assist.DATFEC.substring(3, 5) + '-' + assist.DATFEC.substring(0, 2) + 'T00:00:00')
+      this.recCli = assist.RECCLI
+      this.avaAss = assist.AVAASS
+      this.outObs = assist.OUTOBS
+      this.assPrc = assist.ASSPRC
+      this.tipFre = assist.TIPFRE
+      this.numOri = assist.NUMORI
+      this.desOriAss = assist.DESRGQ
+      this.dscCrt = assist.DSCCRT
+      this.dateChePicked = new Date(assist.DATENT.substring(6, 10) + '-' + assist.DATENT.substring(3, 5) + '-' + assist.DATENT.substring(0, 2) + 'T00:00:00')
+      this.numRnc = assist.NUMRNC
+      this.assCarregada = true
+      document.getElementById('closeModalAss').click()
+    },
+    enviarAss () {
+      if (this.validarAss()) {
+        document.getElementsByTagName('body')[0].style.cursor = 'wait'
+        const body = JSON.stringify({
+          assistencia: {
+            numAss: this.numAss,
+            codEmp: this.codEmp,
+            snfNfe: this.snfNfc,
+            codFor: this.codFor,
+            codFil: this.codFil,
+            numNfc: this.numNfc > 0 ? this.numNfc : 0,
+            seqIpc: this.seqIpc > 0 ? this.seqIpc : 0,
+            numPed: this.numPed > 0 ? this.numPed : 0,
+            seqIpd: this.seqIpd > 0 ? this.seqIpd : 0,
+            seqIpe: this.seqIte > 0 ? this.seqIte : 0,
+            numSep: this.numSep,
+            datGer: this.datAbe !== '' ? this.datAbe.toLocaleDateString('pt-BR') : '',
+            datEnt: this.datChe !== '' ? this.datChe.toLocaleDateString('pt-BR') : '',
+            datFec: this.datFec !== '' ? this.datFec.toLocaleDateString('pt-BR') : '',
+            recCli: this.recCli,
+            avaAss: this.avaAss,
+            outObs: this.outObs,
+            assPrc: this.assPrc,
+            tipFre: this.tipFre,
+            numOri: this.numOri,
+            tipSol: this.tipSol,
+            dscCrt: this.dscCrt,
+            numRnc: this.numRnc
+          }
+        })
+        const headers = { headers: { 'Content-Type': 'application/json' } }
+        axios.put(this.api_url + '/assistencia?token=' + this.token, body, headers)
+          .then((response) => {
+            this.checkInvalidLoginResponse(response.data)
+            if (response.data === 'OK') {
+              this.assCarregada = true
+              this.$emit("finalizar", this.numRnc);
+              alert('Registro de Assistência Técnica inserido/atualizado com sucesso! Anexos podem ser enviados.')
+            } else {
+              alert(response.data)
+            }
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+          .finally(() => {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          })
+      }
+    },
+    validarAss () {
+      return true
     },
     selectDate (model) {
       this.datClick = model
@@ -761,6 +930,7 @@ export default {
       this.desSeqIpd = ''
       this.seqIte = ''
       this.maxSeqIte = ''
+      this.numSep = ''
       this.datAbe = ''
       this.datFec = ''
       this.recCli = ''
@@ -773,6 +943,7 @@ export default {
       this.dscCrt = ''
       this.datChe = ''
       this.numRnc = ''
+      this.assCarregada = false
     },
     cancelar () {
       this.numAss = ''
