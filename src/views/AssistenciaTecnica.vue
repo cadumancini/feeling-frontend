@@ -625,6 +625,7 @@ export default {
       outObs: '',
       assPrc: '',
       tipFre: '',
+      tipSol: '',
       numOri: '',
       desOriAss: '',
       dscCrt: '',
@@ -803,6 +804,44 @@ export default {
       }
     },
     validarAss () {
+      return this.validarNotaFiscal() &&
+        this.validarCamposPedido() &&
+        this.validarOrigem() &&
+        this.validarReclamacao()
+    },
+    validarNotaFiscal () {
+      if (this.numNfc === '' || this.seqIpc === '') {
+        alert('Favor informar nota fiscal e item!')
+        return false
+      }
+      return true
+    },
+    validarCamposPedido () {
+      if (this.numPed === '' || this.seqIpd === '' || this.seqIte === '') {
+        alert('Favor informar pedido, item e sequência!')
+        return false
+      }
+      return this.checkSeqIte()
+    },
+    checkSeqIte () {
+      if (this.seqIte <= 0 || this.seqIte > this.maxSeqIte) {
+        alert('Atenção: A sequência do item deve ser entre 1 e ' + this.maxSeqIte + '!')
+        return false
+      }
+      return true
+    },
+    validarOrigem () {
+      if (this.numOri === '') {
+        alert('Favor informar uma área de origem!')
+        return false
+      }
+      return true
+    },
+    validarReclamacao () {
+      if (this.recCli === '') {
+        alert('Favor informar a reclamação do cliente!')
+        return false
+      }
       return true
     },
     selectDate (model) {
