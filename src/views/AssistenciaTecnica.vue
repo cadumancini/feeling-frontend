@@ -749,6 +749,9 @@ export default {
       this.assCarregada = true
       document.getElementById('closeModalAss').click()
     },
+    filtrarAssistencias () {
+      this.assistenciasFiltradas = this.assistencias.filter(ass => ass.NUMASS.toUpperCase().startsWith(this.assistenciasFiltro.toUpperCase()))
+    },
     enviarAss () {
       if (this.validarAss()) {
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
