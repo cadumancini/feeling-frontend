@@ -40,7 +40,8 @@ export default {
       expandAlmoxarifado: false,
       expandComercial: false,
       expandProducao: false,
-      formsAvailable: []
+      formsAvailable: [],
+      formsExpanded: []
     }
   },
   created () {
@@ -59,8 +60,10 @@ export default {
   mounted () {
     if (!sessionStorage.getItem('token')) {
       this.$router.push({ name: 'Login' })
-    } else {
-      
+    }
+    if (localStorage.getItem('formsExpanded')) {
+      this.formsExpanded = localStorage.getItem('formsExpanded').split(',')
+      this.expandFormsFromStorage()
     }
   },
   methods: {
@@ -69,12 +72,32 @@ export default {
     },
     triggerAlmoxarifado () {
       this.expandAlmoxarifado = !this.expandAlmoxarifado
+      this.handleExpanded('ALMOX')
     },
     triggerComercial () {
       this.expandComercial = !this.expandComercial
+      this.handleExpanded('COM')
     },
     triggerProducao () {
       this.expandProducao = !this.expandProducao
+      this.handleExpanded('PROD')
+    },
+    handleExpanded (form) {
+      console.log(this.formsExpanded)
+      if (this.formsExpanded.includes(form)) {
+        var index = this.formsExpanded.indexOf(form);
+        if (index !== -1) {
+          this.formsExpanded.splice(index, 1);
+        }
+      } 
+      else this.formsExpanded.push(form)
+
+      localStorage.setItem('formsExpanded', this.formsExpanded)
+    },
+    expandFormsFromStorage () {
+      this.expandAlmoxarifado = this.formsExpanded.includes('ALMOX')
+      this.expandComercial = this.formsExpanded.includes('COM')
+      this.expandProducao = this.formsExpanded.includes('PROD')
     },
     access (form) {
       this.$router.push({ name: form })
