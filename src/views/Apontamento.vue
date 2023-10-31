@@ -14,11 +14,40 @@
           </div>
           <div class="row mb-2" v-if="this.ordemProducao">
             <div class="col">
-              <p class="sm fw-bold fst-italic">Processo: {{ this.ordemProducao.DESFAM }}</p>
-              <p class="sm fw-bold fst-italic">Pedido: {{this.ordemProducao.NUMPED}}</p>
-              <p class="sm fw-bold fst-italic">Item: {{this.ordemProducao.SEQIPD}}</p>
-              <p class="sm fw-bold fst-italic">Sequência: {{this.ordemProducao.SEQIPE}}</p>
-              <p class="sm fw-bold fst-italic">Produto: {{this.ordemProducao.DESPRO}}</p>
+              <p class="sm fw-bold fst-italic mb-1">Processo: {{ this.ordemProducao.DESFAM }}</p>
+              <p class="sm fw-bold fst-italic mb-1">Pedido: {{this.ordemProducao.NUMPED}}</p>
+              <p class="sm fw-bold fst-italic mb-1">Item: {{this.ordemProducao.SEQIPD}}</p>
+              <p class="sm fw-bold fst-italic mb-1">Sequência: {{this.ordemProducao.SEQIPE}}</p>
+              <p class="sm fw-bold fst-italic mb-1">Produto: {{this.ordemProducao.DESPRO}}</p>
+            </div>
+          </div>
+          <div class="row mb-2">
+            <div class="col">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Apontamento</span>
+                <select class="form-select" v-model="aptIntExt">
+                  <option selected value="I">Interno</option>
+                  <option value="E">Externo</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-2" v-if="aptIntExt === 'E' && this.ordemProducao">
+            <div class="col-6">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Operação</span>
+                <select class="form-select" v-model="aptRemRet">
+                  <option selected value="REM">Remessa</option>
+                  <option value="RET">Retorno</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Fornecedor</span>
+                <input id="numPed" class="form-control" type="text" disabled v-model="nomFor">
+                <button id="btnBuscaFornecedores" class="btn btn-secondary input-group-btn btn-busca" @click="buscaFornecedores" data-bs-toggle="modal" data-bs-target="#fornecedoresModal">...</button>
+              </div>
             </div>
           </div>
           <div class="row mb-2">
@@ -34,6 +63,43 @@
           <div class="row">
             <div class="d-grid gap-2">
               <button class="btn btn-secondary" type="button" @click="cancelar">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Fornecedores -->
+      <div class="modal fade" id="fornecedoresModal" tabindex="-1" aria-labelledby="fornecedoresModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="fornecedoresModalLabel">Busca de Fornecedores</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalFornecedores"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3" v-if="fornecedores != null">
+                <input type="text" class="form-control mb-3" v-on:keyup="filtrarFornecedores" v-model="fornecedoresFiltro" placeholder="Digite para buscar o fornecedor na tabela abaixo">
+                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                  <thead>
+                    <tr>
+                      <th class="sm-header" scope="col">Código</th>
+                      <th class="sm-header" scope="col">Nome</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="row in fornecedoresFiltrados" :key="row.CODFOR" class="mouseHover" @click="selectFornecedor(row)">
+                      <th class="fw-normal sm" scope="row">{{ row.CODFOR }}</th>
+                      <th class="fw-normal sm">{{ row.NOMFOR }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else>
+                <label>Buscando fornecedores ...</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
             </div>
           </div>
         </div>
@@ -54,7 +120,14 @@ export default {
       api_url: '',
       token: '',
       codBarrasCab: '',
-      ordemProducao: null
+      aptIntExt: 'I',
+      aptRemRet: 'REM',
+      ordemProducao: null,
+      codFor: '',
+      nomFor: '',
+      fornecedores: null,
+      fornecedoresFiltrados: null,
+      fornecedoresFiltro: ''
     }
   },
   created () {
@@ -109,27 +182,77 @@ export default {
     onEnter () {
       this.$refs.btnProcessar.focus()
     },
+    buscaFornecedores () { 
+      this.fornecedores = [{"CODFOR":"123", "NOMFOR":"ASDASD"}, {"CODFOR":"456", "NOMFOR":"ASDASD"}]
+      this.fornecedoresFiltrados = this.fornecedores
+
+      // this.fornecedoresFiltro = ''
+      // this.fornecedores = null
+      // this.fornecedoresFiltrados = null
+      // const partes = this.codBarrasCab.split('.')
+      // document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      // document.getElementById('btnBuscaFornecedores').disabled = true
+      // axios.get(this.api_url + '/fornecedoresPorProduto?token=' + this.token + '&codEmp=' + partes[0] + '&codPro=' + this.ordemProducao.CODPRO + '&codDer=' + this.ordemProducao.CODDER)
+      //   .then((response) => {
+      //     this.checkInvalidLoginResponse(response.data)
+      //     this.fornecedores = response.data.fornecedores
+      //     this.fornecedoresFiltrados = response.data.fornecedores
+      //   })
+      //   .catch((err) => {
+      //     console.log(err)
+      //   })
+      //   .finally(() => {
+      //     document.getElementsByTagName('body')[0].style.cursor = 'auto'
+      //     document.getElementById('btnBuscaFornecedores').disabled = false          
+      //   })
+    },
+    filtrarFornecedores () {
+      this.fornecedoresFiltrados = this.fornecedores.filter(forn => forn.NOMFOR.toUpperCase().startsWith(this.assistenciasFiltro.toUpperCase()))
+    },
+    selectFornecedor (row) {
+      this.codFor = row.CODFOR
+      this.nomFor = row.CODFOR + ' - ' + row.NOMFOR
+      document.getElementById('closeModalFornecedores').click()
+    },
     processar () {
-      document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      document.getElementById('btnProcessar').disabled = true
+      if (this.validarCampos()) {
+        document.getElementsByTagName('body')[0].style.cursor = 'wait'
+        document.getElementById('btnProcessar').disabled = true
 
-      axios.post(this.api_url + '/apontarOP?token=' + this.token + '&codBar=' + this.codBarrasCab)
-        .then(response => {
-          this.checkInvalidLoginResponse(response.data)
-          alert(response.data)
-          this.cancelar()
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-        .finally(() => {
-          document.getElementsByTagName('body')[0].style.cursor = 'auto'
-          document.getElementById('btnProcessar').disabled = false
-        })
+        const remRet = this.aptIntExt === 'E' ? this.aptRemRet : ''
+        const codFor = this.aptIntExt === 'E' ? this.codFor : ''
 
+        axios.post(this.api_url + '/apontarOP?token=' + this.token + '&codBar=' + this.codBarrasCab + '&intExt=' + 
+                    this.aptIntExt + '&remRet=' + remRet + '&codFor=' + codFor)
+          .then(response => {
+            this.checkInvalidLoginResponse(response.data)
+            alert(response.data)
+            this.cancelar()
+          })
+          .catch((err) => {
+            console.log(err)
+          })
+          .finally(() => {
+            document.getElementsByTagName('body')[0].style.cursor = 'auto'
+            document.getElementById('btnProcessar').disabled = false
+          })
+      }
+    },
+    validarCampos () {
+      if (this.aptIntExt === 'E') {
+        if (this.codFor === '') {
+          alert('Por favor, informe um fornecedor!')
+          return false
+        }
+      }
+      return true
     },
     cancelar () {
       this.codBarrasCab = ''
+      this.aptIntExt = 'I'
+      this.aptRemRet = 'REM'
+      this.codFor = ''
+      this.nomFor = ''
       this.ordemProducao = null
       this.$refs.inputCodBarras.focus()
     }
@@ -143,5 +266,17 @@ export default {
   }
   .apontamento {
     height: 100%;
+  }
+  .btn-busca {
+    width: 1.75rem !important;
+  }
+  .mouseHover {
+    cursor: pointer;
+  }
+  .sm {
+    font-size: 0.8rem !important;
+  }
+  .sm-header {
+    font-size: 0.9rem !important;
   }
 </style>
