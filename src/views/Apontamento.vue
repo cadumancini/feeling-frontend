@@ -26,7 +26,7 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Apontamento</span>
                 <select class="form-select" v-model="aptIntExt">
-                  <option selected value="I">Interno</option>
+                  <option selected value="N">Normal (não vai para terceiro)</option>
                   <option value="E">Externo</option>
                 </select>
               </div>
@@ -37,8 +37,8 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Operação</span>
                 <select class="form-select" v-model="aptRemRet">
-                  <option selected value="REM">Remessa</option>
-                  <option value="RET">Retorno</option>
+                  <option selected value="E">Envio para terceiro</option>
+                  <option value="R">Retorno de terceiro</option>
                 </select>
               </div>
             </div>
@@ -120,8 +120,8 @@ export default {
       api_url: '',
       token: '',
       codBarrasCab: '',
-      aptIntExt: 'I',
-      aptRemRet: 'REM',
+      aptIntExt: 'N',
+      aptRemRet: 'E',
       ordemProducao: null,
       codFor: '',
       nomFor: '',
@@ -183,28 +183,25 @@ export default {
       this.$refs.btnProcessar.focus()
     },
     buscaFornecedores () { 
-      this.fornecedores = [{"CODFOR":"123", "NOMFOR":"ASDASD"}, {"CODFOR":"456", "NOMFOR":"ASDASD"}]
-      this.fornecedoresFiltrados = this.fornecedores
-
-      // this.fornecedoresFiltro = ''
-      // this.fornecedores = null
-      // this.fornecedoresFiltrados = null
-      // const partes = this.codBarrasCab.split('.')
-      // document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      // document.getElementById('btnBuscaFornecedores').disabled = true
-      // axios.get(this.api_url + '/fornecedoresPorProduto?token=' + this.token + '&codEmp=' + partes[0] + '&codPro=' + this.ordemProducao.CODPRO + '&codDer=' + this.ordemProducao.CODDER)
-      //   .then((response) => {
-      //     this.checkInvalidLoginResponse(response.data)
-      //     this.fornecedores = response.data.fornecedores
-      //     this.fornecedoresFiltrados = response.data.fornecedores
-      //   })
-      //   .catch((err) => {
-      //     console.log(err)
-      //   })
-      //   .finally(() => {
-      //     document.getElementsByTagName('body')[0].style.cursor = 'auto'
-      //     document.getElementById('btnBuscaFornecedores').disabled = false          
-      //   })
+      this.fornecedoresFiltro = ''
+      this.fornecedores = null
+      this.fornecedoresFiltrados = null
+      const partes = this.codBarrasCab.split('.')
+      document.getElementsByTagName('body')[0].style.cursor = 'wait'
+      document.getElementById('btnBuscaFornecedores').disabled = true
+      axios.get(this.api_url + '/fornecedoresPorProduto?token=' + this.token + '&codEmp=' + partes[0] + '&codPro=' + this.ordemProducao.CODPRO + '&codDer=' + this.ordemProducao.CODDER)
+        .then((response) => {
+          this.checkInvalidLoginResponse(response.data)
+          this.fornecedores = response.data.fornecedores
+          this.fornecedoresFiltrados = response.data.fornecedores
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+        .finally(() => {
+          document.getElementsByTagName('body')[0].style.cursor = 'auto'
+          document.getElementById('btnBuscaFornecedores').disabled = false          
+        })
     },
     filtrarFornecedores () {
       this.fornecedoresFiltrados = this.fornecedores.filter(forn => forn.NOMFOR.toUpperCase().startsWith(this.assistenciasFiltro.toUpperCase()))
@@ -219,11 +216,11 @@ export default {
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
         document.getElementById('btnProcessar').disabled = true
 
-        const remRet = this.aptIntExt === 'E' ? this.aptRemRet : ''
-        const codFor = this.aptIntExt === 'E' ? this.codFor : ''
+        const tipOpe = this.aptIntExt === 'N' ? this.aptIntExt : this.aptRemRet
+        const codFor = this.aptIntExt === 'N' ? '' : this.codFor
 
-        axios.post(this.api_url + '/apontarOP?token=' + this.token + '&codBar=' + this.codBarrasCab + '&intExt=' + 
-                    this.aptIntExt + '&remRet=' + remRet + '&codFor=' + codFor)
+        axios.post(this.api_url + '/apontarOP?token=' + this.token + '&codBar=' + this.codBarrasCab + '&tipOpe=' + 
+                    tipOpe + '&codFor=' + codFor)
           .then(response => {
             this.checkInvalidLoginResponse(response.data)
             alert(response.data)
@@ -249,8 +246,8 @@ export default {
     },
     cancelar () {
       this.codBarrasCab = ''
-      this.aptIntExt = 'I'
-      this.aptRemRet = 'REM'
+      this.aptIntExt = 'N'
+      this.aptRemRet = 'E'
       this.codFor = ''
       this.nomFor = ''
       this.ordemProducao = null
