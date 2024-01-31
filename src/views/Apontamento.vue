@@ -74,22 +74,24 @@
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title" id="fornecedoresModalLabel">Busca de Fornecedores</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalFornecedores"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalFornecedores" @click="onEnter"></button>
             </div>
             <div class="modal-body">
               <div class="mb-3" v-if="fornecedores != null">
-                <input type="text" class="form-control mb-3" v-on:keyup="filtrarFornecedores" v-model="fornecedoresFiltro" placeholder="Digite para buscar o fornecedor na tabela abaixo">
+                <input type="text" class="form-control mb-3" v-on:keyup="filtrarFornecedores" id="inputFiltroFornecedor" v-model="fornecedoresFiltro" placeholder="Digite para buscar o fornecedor na tabela abaixo">
                 <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                   <thead>
                     <tr>
                       <th class="sm-header" scope="col">Código</th>
                       <th class="sm-header" scope="col">Nome</th>
+                      <th class="sm-header" scope="col">Apelido</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="row in fornecedoresFiltrados" :key="row.CODFOR" class="mouseHover" @click="selectFornecedor(row)">
                       <th class="fw-normal sm" scope="row">{{ row.CODFOR }}</th>
                       <th class="fw-normal sm">{{ row.NOMFOR }}</th>
+                      <th class="fw-normal sm">{{ row.APEFOR }}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -189,11 +191,12 @@ export default {
       const partes = this.codBarrasCab.split('.')
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       document.getElementById('btnBuscaFornecedores').disabled = true
-      axios.get(this.api_url + '/fornecedoresPorProduto?token=' + this.token + '&codEmp=' + partes[0] + '&codPro=' + this.ordemProducao.CODPRO + '&codDer=' + this.ordemProducao.CODDER)
+      axios.get(this.api_url + '/fornecedoresPorProduto?token=' + this.token)
         .then((response) => {
           this.checkInvalidLoginResponse(response.data)
           this.fornecedores = response.data.fornecedores
           this.fornecedoresFiltrados = response.data.fornecedores
+          document.getElementById('inputFiltroFornecedor').focus()   
         })
         .catch((err) => {
           console.log(err)
@@ -204,12 +207,15 @@ export default {
         })
     },
     filtrarFornecedores () {
-      this.fornecedoresFiltrados = this.fornecedores.filter(forn => forn.NOMFOR.toUpperCase().startsWith(this.assistenciasFiltro.toUpperCase()))
+      this.fornecedoresFiltrados = this.fornecedores.filter(forn => forn.NOMFOR.toUpperCase().startsWith(this.fornecedoresFiltro.toUpperCase()) || 
+                    forn.APEFOR.toUpperCase().startsWith(this.fornecedoresFiltro.toUpperCase()) || 
+                    forn.CODFOR.toUpperCase().startsWith(this.fornecedoresFiltro.toUpperCase()))
     },
     selectFornecedor (row) {
       this.codFor = row.CODFOR
       this.nomFor = row.CODFOR + ' - ' + row.NOMFOR
       document.getElementById('closeModalFornecedores').click()
+      document.getElementById('btnProcessar').focus()
     },
     processar () {
       if (this.validarCampos()) {
