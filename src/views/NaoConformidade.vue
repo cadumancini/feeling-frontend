@@ -82,34 +82,6 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-5 mb-2">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Procedência</span>
-                <select class="form-select" v-model="conPro" :disabled="numRnc === ''">
-                  <option selected value="S">Sim</option>
-                  <option value="N">Não</option>
-                </select>
-              </div>
-            </div>
-            <div class="col mb-2">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Anexos</span>
-                <label class="btn btn-sm btn-action btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)" v-bind:class="{ disabled: !rncCarregada }">
-                  <font-awesome-icon icon="file-upload"/><input type="file" ref="uploadArquivo" style="display: none;" @change="onUploadArquivo"/>
-                </label>
-                <button class="btn btn-sm btn-action btn-secondary sm" @click="download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)" :disabled="!rncCarregada">
-                  <font-awesome-icon icon="download"/>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div class="row mb-2">
-            <div class="input-group input-group-sm">
-              <span class="input-group-text">Conclusão</span>
-              <textarea class="form-control custom-control" v-model="jusRnc" ref="inputJusRnc" maxlength="1999" rows="2" style="resize:none" :disabled="numRnc === ''"></textarea>
-            </div>
-          </div>
-          <div class="row">
             <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Ação</span>
@@ -121,6 +93,17 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Descrição da Ação</span>
                 <textarea class="form-control custom-control" v-model="acaRnc" ref="inputAcaRnc" maxlength="1999" rows="2" style="resize:none" :disabled="numRnc === ''"></textarea>
+              </div>
+            </div>
+            <div class="col-2 mb-2">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Anexos</span>
+                <label class="btn btn-sm btn-action btn-secondary sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Upload de anexo(s)" v-bind:class="{ disabled: !rncCarregada }">
+                  <font-awesome-icon icon="file-upload"/><input type="file" ref="uploadArquivo" style="display: none;" @change="onUploadArquivo"/>
+                </label>
+                <button class="btn btn-sm btn-action btn-secondary sm" @click="download" data-bs-toggle="tooltip" data-bs-placement="top" title="Download de anexo(s)" :disabled="!rncCarregada">
+                  <font-awesome-icon icon="download"/>
+                </button>
               </div>
             </div>
           </div>
@@ -430,7 +413,6 @@ export default {
       rncsFiltradas: null,
       rncsFiltro: '',
       numRnc: '',
-      // assRnc: '',
       oriRnc: '',
       desOriRnc: '',
       origensFiltro: '',
@@ -448,8 +430,6 @@ export default {
       areasFiltradas: null,
       areas: null,
       datRnc: null,
-      conPro: '',
-      jusRnc: '',
       desRnc: '',
       numPed: '',
       empPed: '',
@@ -541,8 +521,6 @@ export default {
       this.docRnc = rncClicked.CODDOC
       this.desDocRnc = rncClicked.DESDOC
       this.datePicked = new Date(rncClicked.DATAUD.substring(6, 10) + '-' + rncClicked.DATAUD.substring(3, 5) + '-' + rncClicked.DATAUD.substring(0, 2) + 'T00:00:00')
-      this.conPro = rncClicked.CONPRO
-      this.jusRnc = rncClicked.JUSCON
       this.desRnc = rncClicked.DESNCF
       this.numPed = rncClicked.NUMPED
       this.seqIpd = rncClicked.SEQIPD
@@ -841,8 +819,6 @@ export default {
             areApl: this.areRnc,
             datAud: this.datRnc.toLocaleDateString('pt-BR'),
             desNcf: this.desRnc,
-            conPro: this.conPro,
-            jusCon: this.jusRnc,
             numPed: this.numPed > 0 ? this.numPed : 0,
             seqIpd: this.seqIpd > 0 ? this.seqIpd : 0,
             seqIte: this.seqIte > 0 ? this.seqIte : 0,
@@ -872,7 +848,7 @@ export default {
     },
     validarRnc () {
       return this.validarOrigem() && this.validarArea() && this.validarCamposPedido() && 
-        this.validarDescricao() && this.validarProcedente() && this.validarConclusao()
+        this.validarDescricao()
     },
     validarOrigem () {
       if (this.oriRnc === '') {
@@ -909,20 +885,6 @@ export default {
       }
       return true
     },
-    validarProcedente () {
-      if (this.conPro === '') {
-        alert('Favor informar um valor para procedência!')
-        return false
-      }
-      return true
-    },
-    validarConclusao () {
-      if (this.jusRnc === '') {
-        alert('Favor informar uma conclusão!')
-        return false
-      }
-      return true
-    },
     iniciarRnc () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       document.getElementById('btnIniciarRncs').disabled = true
@@ -955,7 +917,6 @@ export default {
       this.datePicked = null
       this.datRnc = null
       this.conPro = ''
-      this.jusRnc = ''
       this.desRnc = ''
       this.numPed = ''
       this.seqIpd = ''
