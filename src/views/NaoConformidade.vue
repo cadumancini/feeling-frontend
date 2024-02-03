@@ -36,12 +36,6 @@
                 <input class="form-control" type="text" disabled v-model="usuRnc">
               </div>
             </div>
-            <!-- <div class="col-7">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Assunto</span>
-                <textarea class="form-control custom-control" v-model="assRnc" ref="inputAssRnc" rows="3" maxlength="250" style="resize:none" :disabled="numRnc === ''"></textarea>
-              </div>
-            </div> -->
           </div>
           <div class="row">
             <div class="col-6 mb-2">
@@ -59,13 +53,6 @@
               </div>
             </div>
           </div>
-            <!-- <div class="col-4">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Requisito ISO</span>
-                <input id="reqIso" class="form-control" type="text" disabled v-model="desReqIso">
-                <button id="btnBuscaRequisitos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarRequisitos" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#requisitosModal">...</button>
-              </div>
-            </div> -->
           <div class="row">
             <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
@@ -96,11 +83,6 @@
           </div>
           <div class="row">
             <div class="col-5 mb-2">
-              <!-- <div class="input-group input-group-sm">
-                <span class="input-group-text">Documento</span>
-                <input id="docRnc" class="form-control" type="text" disabled v-model="desDocRnc">
-                <button id="btnBuscaDoctos" class="btn btn-secondary input-group-btn btn-busca" @click="buscarDoctos" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#doctosModal">...</button>
-              </div> -->
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Procedência</span>
                 <select class="form-select" v-model="conPro" :disabled="numRnc === ''">
@@ -291,25 +273,6 @@
                     </tr>
                   </tbody>
                 </table>
-                <!-- <button class = 'btn btn-secondary btn-sm mb-2' @click="enableInserirTipoAcao">Inserir</button>
-                <div class="row mb-2" v-if="inserindoAtipoAcao">
-                  <div class="col-3">
-                    <div class="input-group input-group-sm">
-                      <span class="input-group-text">Código</span>
-                      <input class="form-control" v-model="codAcaoInserir" ref="inputCodAcaoInserir">
-                    </div>  
-                  </div>
-                  <div class="col-5">
-                    <div class="input-group input-group-sm">
-                      <span class="input-group-text">Descrição</span>
-                      <input class="form-control" v-model="desAcaoInserir" ref="inputDesAcaoInserir">
-                    </div>  
-                  </div>
-                  <div class="col">
-                    <button class = 'btn btn-secondary btn-sm ms-2' @click="inserirTipoAcao">Salvar</button> 
-                    <button class = 'btn btn-secondary btn-sm ms-2' @click="cancelarTipoAcao">Cancelar</button> 
-                  </div>
-                </div> -->
               </div>
               <div v-else>
                 <label>Buscando tipos de ação ...</label>
@@ -321,45 +284,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Modal Doctos -->
-      <!-- <div class="modal fade" id="doctosModal" tabindex="-1" aria-labelledby="doctosModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="areasModalLabel">Busca de Documentos para RNC</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalDoctos"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3" v-if="doctos != null">
-                <input type="text" class="form-control mb-3" v-on:keyup="filtrarDoctos" v-model="doctosFiltro" placeholder="Digite para buscar o documento na tabela abaixo">
-                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-                  <thead>
-                    <tr>
-                      <th class="sm-header" scope="col">Código</th>
-                      <th class="sm-header" scope="col">Documento</th>
-                      <th class="sm-header" scope="col">Situação</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="doctoRow in doctosFiltrados" :key="doctoRow.CODDOC" class="mouseHover" @click="selectDocto(doctoRow)">
-                      <th class="fw-normal sm" scope="row">{{ doctoRow.CODDOC }}</th>
-                      <th class="fw-normal sm">{{ doctoRow.DESDOC }}</th>
-                      <th class="fw-normal sm">{{ doctoRow.SITDOC }}</th>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div v-else>
-                <label>Buscando documentos ...</label>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-            </div>
-          </div>
-        </div>
-      </div> -->
 
       <!-- Modal Pedidos -->
       <div class="modal fade" id="pedidosModal" tabindex="-1" aria-labelledby="pedidosModalLabel" aria-hidden="true">
@@ -455,43 +379,6 @@
         </div>
       </div>
 
-      <!-- Modal Requisitos -->
-      <!-- <div class="modal fade" id="requisitosModal" tabindex="-1" aria-labelledby="requisitosModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="requisitosModalLabel">Busca de Requisitos da ISO</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalRequisitos"></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3" v-if="requisitos != null">
-                <input type="text" class="form-control mb-3" v-on:keyup="filtrarRequisitos" v-model="requisitosFiltro" placeholder="Digite para buscar o requisitos na tabela abaixo">
-                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
-                  <thead>
-                    <tr>
-                      <th class="sm-header" scope="col">Código</th>
-                      <th class="sm-header" scope="col">Descrição</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="reqRow in requisitosFiltrados" :key="reqRow.REQISO" class="mouseHover" @click="selectRequisito(reqRow)">
-                      <th class="fw-normal sm" scope="row">{{ reqRow.REQISO }}</th>
-                      <th class="fw-normal sm">{{ reqRow.DESREQ }}</th>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div v-else>
-                <label>Buscando requisitos ...</label>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
-            </div>
-          </div>
-        </div>
-      </div> -->
-
       <!-- Modal DatePicker -->
       <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-sm">
@@ -560,16 +447,6 @@ export default {
       areasFiltro: '',
       areasFiltradas: null,
       areas: null,
-      // reqIso: '',
-      // desReqIso: '',
-      // requisitosFiltro: '',
-      // requisitosFiltrados: null,
-      // requisitos: null,
-      // docRnc: '',
-      // desDocRnc: '',
-      // doctosFiltro: '',
-      // doctosFiltrados: null,
-      // doctos: null,
       datRnc: null,
       conPro: '',
       jusRnc: '',
