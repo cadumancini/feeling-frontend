@@ -230,7 +230,7 @@ export default {
           .then(response => {
             this.checkInvalidLoginResponse(response.data)
             alert(response.data)
-            this.cancelar()
+            if(response.data.toUpperCase().includes('OK')) this.cancelar()
           })
           .catch((err) => {
             console.log(err)

@@ -26,15 +26,15 @@
             <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Nota Fiscal</span>
-                <input class="form-control" type="text" v-model="numNfc" disabled>
+                <input class="form-control" type="text" v-model="numNfv" disabled>
                 <button id="btnBuscaNotas" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === ''" @click="buscarNotas" data-bs-toggle="modal" data-bs-target="#notasFiscaisModal">...</button>
               </div>
             </div>
             <div class="col-6 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Item da Nota</span>
-                <input class="form-control" type="text" v-model="desIpc" disabled>
-                <button id="btnBuscaItensNF" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === '' || numNfc === ''" @click="buscarItensNF" data-bs-toggle="modal" data-bs-target="#itensNotaModal">...</button>
+                <input class="form-control" type="text" v-model="desIpv" disabled>
+                <button id="btnBuscaItensNF" class="btn btn-secondary input-group-btn btn-busca" :disabled="numAss === '' || numNfv === ''" @click="buscarItensNF" data-bs-toggle="modal" data-bs-target="#itensNotaModal">...</button>
               </div>
             </div>
           </div>
@@ -207,35 +207,22 @@
             </div>
             <div class="modal-body">
               <div class="mb-3" v-if="notasFiscais != null">
-                <span>Filtrar Nota por: </span>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" v-on:change="zerarFiltro" type="radio" name="inlineRadioOptions" id="inlineRadioNota" value="nota" v-model="tipoFiltroNF">
-                  <label class="form-check-label" for="inlineRadioNota">Número da Nota</label>
-                </div>
-                <div class="form-check form-check-inline">
-                  <input class="form-check-input" v-on:change="zerarFiltro" type="radio" name="inlineRadioOptions" id="inlineRadioForn" value="forn" v-model="tipoFiltroNF">
-                  <label class="form-check-label" for="inlineRadioForn">Nome do Fornecedor</label>
-                </div>
                 <input type="text" class="form-control mb-3" v-on:keyup="filtrarNotas" v-model="notasFiscaisFiltro" placeholder="Digite para buscar a Nota na tabela abaixo">
                 <table class="table table-striped table-hover table-bordered table-sm table-responsive">
                   <thead>
                     <tr>
                       <th class="sm-header" scope="col">Empresa</th>
-                      <th class="sm-header" scope="col">Cód. Fornecedor</th>
-                      <th class="sm-header" scope="col">Fornecedor</th>
                       <th class="sm-header" scope="col">Série</th>
                       <th class="sm-header" scope="col">Nota</th>
-                      <th class="sm-header" scope="col">Data de Entrada</th>
+                      <th class="sm-header" scope="col">Data de Emissão</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="nfRow in notasFiscaisFiltradas" :key="nfRow.CODEMP + nfRow.CODFOR + nfRow.CODSNF + nfRow.NUMNFC" class="mouseHover" @click="selectNota(nfRow)">
+                    <tr v-for="nfRow in notasFiscaisFiltradas" :key="nfRow.CODEMP + nfRow.CODSNF + nfRow.NUMNFV" class="mouseHover" @click="selectNota(nfRow)">
                       <th class="fw-normal sm" scope="row">{{ nfRow.CODEMP }}</th>
-                      <th class="fw-normal sm">{{ nfRow.CODFOR }}</th>
-                      <th class="fw-normal sm">{{ nfRow.NOMFOR }}</th>
                       <th class="fw-normal sm">{{ nfRow.CODSNF }}</th>
-                      <th class="fw-normal sm">{{ nfRow.NUMNFC }}</th>
-                      <th class="fw-normal sm">{{ nfRow.DATENT }}</th>
+                      <th class="fw-normal sm">{{ nfRow.NUMNFV }}</th>
+                      <th class="fw-normal sm">{{ nfRow.DATEMI }}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -269,9 +256,9 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="ipcRow in itensNota" :key="ipcRow.SEQIPC" class="mouseHover" @click="selectItemNota(ipcRow)">
-                      <th class="fw-normal sm" scope="row">{{ ipcRow.SEQIPC }}</th>
-                      <th class="fw-normal sm">{{ ipcRow.CPLIPC }}</th>
+                    <tr v-for="row in itensNota" :key="row.SEQIPV" class="mouseHover" @click="selectItemNota(row)">
+                      <th class="fw-normal sm" scope="row">{{ row.SEQIPV }}</th>
+                      <th class="fw-normal sm">{{ row.CPLIPV }}</th>
                     </tr>
                   </tbody>
                 </table>
@@ -581,17 +568,11 @@ export default {
       numAss: '',
       codEmp: '',
       codFil: '',
-      codFor: '',
-      snfNfc: '',
-      numNfc: '',
-      seqIpc: '',
-      cplIpc: '',
-      desIpc: '',
-      empNfv: '',
-      filNfv: '',
-      snfNfv: '',
+      codSnf: '',
       numNfv: '',
       seqIpv: '',
+      cplIpv: '',
+      desIpv: '',
       assistenciasFiltro: '',
       assistencias: null,
       assistenciasFiltradas: null,
@@ -599,7 +580,6 @@ export default {
       notasFiscaisFiltradas: null,
       notasFiscaisFiltro: '',
       itensNota: null,
-      tipoFiltroNF: null,
       pedidosFiltro: '',
       pedidosFiltrados: null,
       pedidos: null,
@@ -715,16 +695,11 @@ export default {
       this.codEmp = assist.CODEMP
       this.codFil = assist.CODFIL
       this.codFor = assist.CODFOR
-      this.snfNfc = assist.SNFNFE
-      this.numNfc = assist.NUMNFC
-      this.seqIpc = assist.SEQIPC
-      this.cplIpc = assist.CPLIPC
-      this.desIpc = assist.SEQIPC + ' - ' + assist.CPLIPC
-      this.empNfv = assist.EMPNFV
-      this.filNfv = assist.FILNFV
-      this.snfNfv = assist.SNFNFV
+      this.codSnf = assist.CODSNF
       this.numNfv = assist.NUMNFV
       this.seqIpv = assist.SEQIPV
+      this.cplIpv = assist.CPLIPV
+      this.desIpv = assist.SEQIPV + ' - ' + assist.CPLIPV
       this.numPed = assist.NUMPED
       this.seqIpd = assist.SEQIPD
       this.empPed = assist.CODEMP
@@ -760,11 +735,11 @@ export default {
           assistencia: {
             numAss: this.numAss,
             codEmp: this.codEmp,
-            snfNfe: this.snfNfc,
-            codFor: this.codFor,
+            snfNfe: this.codSnf,
+            codFor: 0,
             codFil: this.codFil,
-            numNfc: this.numNfc > 0 ? this.numNfc : 0,
-            seqIpc: this.seqIpc > 0 ? this.seqIpc : 0,
+            numNfc: this.numNfv > 0 ? this.numNfv : 0,
+            seqIpc: this.seqIpv > 0 ? this.seqIpv : 0,
             numPed: this.numPed > 0 ? this.numPed : 0,
             seqIpd: this.seqIpd > 0 ? this.seqIpd : 0,
             seqIpe: this.seqIte > 0 ? this.seqIte : 0,
@@ -810,7 +785,7 @@ export default {
         this.validarReclamacao()
     },
     validarNotaFiscal () {
-      if (this.numNfc === '' || this.seqIpc === '') {
+      if (this.numNfv === '' || this.seqIpv === '') {
         alert('Favor informar nota fiscal e item!')
         return false
       }
@@ -868,11 +843,7 @@ export default {
         })
     },
     filtrarNotas () {
-        if (this.tipoFiltroNF === 'nota') {
-          this.notasFiscaisFiltradas = this.notasFiscais.filter(nota => nota.NUMNFC.toUpperCase().startsWith(this.notasFiscaisFiltro.toUpperCase()))
-        } else if (this.tipoFiltroNF === 'forn') {
-          this.notasFiscaisFiltradas = this.notasFiscais.filter(nota => nota.NOMFOR.toUpperCase().startsWith(this.notasFiscaisFiltro.toUpperCase()))
-        }   
+      this.notasFiscaisFiltradas = this.notasFiscais.filter(nota => nota.NUMNFV.toUpperCase().startsWith(this.notasFiscaisFiltro.toUpperCase()))
     },
     zerarFiltro () {
       this.notasFiscaisFiltro = ''
@@ -881,18 +852,12 @@ export default {
     selectNota (nota) {
       this.codEmp = nota.CODEMP
       this.codFil = nota.CODFIL
-      this.codFor = nota.CODFOR
-      this.snfNfc = nota.CODSNF
-      this.numNfc = nota.NUMNFC
+      this.codSnf = nota.CODSNF
+      this.numNfv = nota.NUMNFV
 
-      this.seqIpc = ''
-      this.cplIpc = ''
-      this.desIpc = ''
-      this.empNfv = ''
-      this.filNfv = ''
-      this.snfNfv = ''
-      this.numNfv = ''
       this.seqIpv = ''
+      this.cplIpv = ''
+      this.desIpv = ''
       document.getElementById('closeModalNotas').click()
     },
     buscarItensNF () {
@@ -900,7 +865,7 @@ export default {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       document.getElementById('btnBuscaItensNF').disabled = true
       axios.get(this.api_url + '/itensNota?token=' + this.token + '&codEmp=' + this.codEmp + '&codFil=' + 
-                this.codFil + '&codFor=' + this.codFor + '&numNfc=' + this.numNfc + '&codSnf=' + this.snfNfc)
+                this.codFil + '&numNfv=' + this.numNfv + '&codSnf=' + this.codSnf)
         .then((response) => {
           this.checkInvalidLoginResponse(response.data)
           this.itensNota = response.data.itens
@@ -914,14 +879,9 @@ export default {
         })
     },
     selectItemNota (item) {
-      this.seqIpc = item.SEQIPC
-      this.cplIpc = item.CPLIPC
-      this.desIpc = item.SEQIPC + ' - ' + item.CPLIPC
-      this.empNfv = item.EMPNFV
-      this.filNfv = item.FILNFV
-      this.snfNfv = item.SNFNFV
-      this.numNfv = item.NUMNFV
       this.seqIpv = item.SEQIPV
+      this.cplIpv = item.CPLIPV
+      this.desIpv = item.SEQIPV + ' - ' + item.CPLIPV
       document.getElementById('closeModalItensNF').click()
 
       if (this.numPed === '') {
@@ -930,7 +890,7 @@ export default {
     },
     buscarPedidoBaseadoEmNota() {
       axios.get(this.api_url + '/pedidoPorNota?token=' + this.token + '&codEmp=' + this.codEmp + '&codFil=' + 
-                this.codFil + '&snfNfv=' + this.snfNfv + '&numNfv=' + this.numNfv + '&seqIpv=' + this.seqIpv)
+                this.codFil + '&snfNfv=' + this.codSnf + '&numNfv=' + this.numNfv + '&seqIpv=' + this.seqIpv)
       .then((response) => {
         this.checkInvalidLoginResponse(response.data)
         if (response.data.pedido.length > 0) {
@@ -953,16 +913,11 @@ export default {
       this.codEmp = ''
       this.codFil = ''
       this.codFor = ''
-      this.snfNfc = ''
-      this.numNfc = ''
-      this.seqIpc = ''
-      this.cplIpc = ''
-      this.desIpc = ''
-      this.empNfv = ''
-      this.filNfv = ''
-      this.snfNfv = ''
+      this.codSnf = ''
       this.numNfv = ''
       this.seqIpv = ''
+      this.cplIpv = ''
+      this.desIpv = ''
       this.numPed = ''
       this.empPed = ''
       this.filPed = ''
@@ -1067,7 +1022,7 @@ export default {
       this.maxSeqIte = item.QTDPED
       document.getElementById('closeModalItens').click()
 
-      if(this.numNfc === '') {
+      if(this.numNfv === '') {
         this.buscarNotaBaseadoEmPedido()
       }
     },
@@ -1168,7 +1123,10 @@ export default {
       this.rncsFiltradas = null
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       document.getElementById('btnBuscaRncs').disabled = true
-      axios.get(this.api_url + '/rncs?token=' + this.token)
+      const url = (this.numPed > 0 && this.seqIpd > 0) ?
+                    this.api_url + '/rncsPorPedido?token=' + this.token + '&numPed=' + this.numPed + '&seqIpd=' + this.seqIpd :
+                    this.api_url + '/rncs?token=' + this.token
+      axios.get(url)
         .then((response) => {
           this.checkInvalidLoginResponse(response.data)
           this.rncs = response.data.rnc
