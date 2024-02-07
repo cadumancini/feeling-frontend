@@ -229,8 +229,12 @@ export default {
                     tipOpe + '&codFor=' + codFor)
           .then(response => {
             this.checkInvalidLoginResponse(response.data)
-            alert(response.data)
-            if(response.data.toUpperCase().includes('OK')) this.cancelar()
+            if(response.data.toUpperCase().includes('OK')) {
+              alert('OK')
+              this.cancelar()
+            } else {
+              alert(response.data)
+            }
           })
           .catch((err) => {
             console.log(err)
