@@ -38,22 +38,6 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-6 mb-2">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Área de Origem</span>
-                <input id="oriRnc" class="form-control" type="text" disabled v-model="desOriRnc">
-                <button id="btnBuscaOrigens" class="btn btn-secondary input-group-btn btn-busca" @click="buscarOrigens" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#origensModal">...</button>
-              </div>
-            </div>
-            <div class="col-6 mb-2">
-              <div class="input-group input-group-sm">
-                <span class="input-group-text">Classificação</span>
-                <input id="areRnc" class="form-control" type="text" disabled v-model="desAreRnc">
-                <button id="btnBuscaAreas" class="btn btn-secondary input-group-btn btn-busca" @click="buscarAreas" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#areasModal">...</button>
-              </div>
-            </div>
-          </div>
-          <div class="row">
             <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Pedido</span>
@@ -71,7 +55,24 @@
             <div class="col-4 mb-2">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Sequência</span>
-                <input class="form-control" type="number" v-model="seqIte" ref="inputSeqIte" :disabled="numRnc === '' || numPed === '' || seqIpd === ''">
+                <input class="form-control" type="number" v-model="seqIte" ref="inputSeqIte" disabled>
+                <button id="btnBuscaSequencias" class="btn btn-secondary input-group-btn btn-busca" @click="popularSequencias" :disabled="numRnc === '' || numPed === '' || seqIpd === ''" data-bs-toggle="modal" data-bs-target="#sequenciasModal">...</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-2">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Área de Origem</span>
+                <input id="oriRnc" class="form-control" type="text" disabled v-model="desOriRnc">
+                <button id="btnBuscaOrigens" class="btn btn-secondary input-group-btn btn-busca" @click="buscarOrigens" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#origensModal">...</button>
+              </div>
+            </div>
+            <div class="col-6 mb-2">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Classificação</span>
+                <input id="areRnc" class="form-control" type="text" disabled v-model="desAreRnc">
+                <button id="btnBuscaAreas" class="btn btn-secondary input-group-btn btn-busca" @click="buscarAreas" :disabled="numRnc === ''" data-bs-toggle="modal" data-bs-target="#areasModal">...</button>
               </div>
             </div>
           </div>
@@ -362,6 +363,40 @@
         </div>
       </div>
 
+      <!-- Modal Sequencias do item do Pedido -->
+      <div class="modal fade" id="sequenciasModal" tabindex="-1" aria-labelledby="sequenciasModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="sequenciasModalLabel">Sequencias do Item</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalSequencias"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3" v-if="sequencias.length">
+                <table class="table table-striped table-hover table-bordered table-sm table-responsive">
+                  <thead>
+                    <tr>
+                      <th class="sm-header" scope="col">Sequência</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="row in sequencias" :key="row" class="mouseHover" @click="selectSequencia(row)">
+                      <th class="fw-normal sm" scope="row">{{ row }}</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else>
+                <label>Buscando sequências ...</label>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Modal DatePicker -->
       <div class="modal fade" id="datePickerModal" tabindex="-1" aria-labelledby="datePickerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-sm">
@@ -424,6 +459,7 @@ export default {
       empresas: null,
       empresasFiltro: [],
       itens: null,
+      sequencias: [],
       areRnc: '',
       desAreRnc: '',
       areasFiltro: '',
@@ -754,11 +790,24 @@ export default {
           document.getElementById('btnBuscaItens').disabled = false
         })
     },
+    popularSequencias () {
+      this.sequencias = []
+      console.log(this.maxSeqIte)
+      for(let i = 1; i <= this.maxSeqIte; i++) {
+        console.log('entrou')
+        this.sequencias.push(i)
+      }
+    },
     selectItem (item) {
       this.seqIpd = item.SEQIPD
       this.desSeqIpd = item.SEQIPD + ' - ' + item.DSCPRO
       this.maxSeqIte = item.QTDPED
+      this.popularSequencias()
       document.getElementById('closeModalItens').click()
+    },
+    selectSequencia (row) {
+      this.seqIte = row
+      document.getElementById('closeModalSequencias').click()
     },
     onUploadArquivo () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
@@ -920,6 +969,7 @@ export default {
       this.desRnc = ''
       this.numPed = ''
       this.seqIpd = ''
+      this.sequencias = []
       this.desSeqIpd = ''
       this.seqIte = ''
       this.tipAca = ''
