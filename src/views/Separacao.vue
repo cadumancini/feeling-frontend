@@ -16,13 +16,13 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Quantidade</span>
-                <input class="form-control" v-model="qtdeSep" type="number" ref="inputQtdSep">
+                <input class="form-control" disabled v-model="qtdeReq">
               </div>
             </div>
           </div>
           <div class="row mb-2">
             <div class="d-grid gap-2">
-              <button id="btnProcessar" class="btn btn-secondary" type="button" @click="processar">Processar</button>
+              <button id="btnProcessar" :disabled="qtdeReq === ''" class="btn btn-secondary" type="button" @click="processar">Processar</button>
             </div>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default {
       api_url: '',
       token: '',
       codBarrasCab: '',
-      qtdeSep: ''
+      qtdeReq: ''
     }
   },
   created () {
@@ -89,31 +89,41 @@ export default {
       }
     },
     onEnter () {
-      this.$refs.inputQtdSep.focus()
+      this.processar()
     },
     processar () {
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
-      document.getElementById('btnProcessar').disabled = true
 
-      this.qtdeSep = String(this.qtdeSep).replace('.', ',')
-      axios.post(this.api_url + '/separarAlmox?token=' + this.token + '&codBar=' + this.codBarrasCab + '&qtdSep=' + this.qtdeSep)
+      const operacao = this.qtdeReq === '' ? 'C' : 'A'
+      console.log(operacao)
+      axios.post(this.api_url + '/separarAlmox?token=' + this.token + '&codBar=' + this.codBarrasCab + '&operacao=' + operacao)
         .then(response => {
           this.checkInvalidLoginResponse(response.data)
-          alert(response.data)
-          this.cancelar()
+          if (operacao === 'A') {
+            alert(response.data)
+            this.cancelar()
+          } else {
+            if (response.data.OP[0]) {
+              this.qtdeReq = response.data.OP[0].QTDREQ
+              document.getElementById('btnProcessar').focus()
+            }
+            else {
+              alert('Nenhum dado encontrado para a OP lida!')  
+              this.cancelar()
+            } 
+          }
         })
         .catch((err) => {
           console.log(err)
         })
         .finally(() => {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
-          document.getElementById('btnProcessar').disabled = false
         })
 
     },
     cancelar () {
       this.codBarrasCab = ''
-      this.qtdeSep = ''
+      this.qtdeReq = ''
       this.$refs.inputCodBarras.focus()
     }
   }
