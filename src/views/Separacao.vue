@@ -15,7 +15,7 @@
           <div class="row mb-2">
             <div class="col">
               <div class="input-group input-group-sm">
-                <span class="input-group-text">Quantidade</span>
+                <span class="input-group-text">Quantidade Separada</span>
                 <input class="form-control" disabled v-model="qtdeReq">
               </div>
             </div>
