@@ -157,7 +157,8 @@ export default {
             desCmp: (this.embalado.desNfv + (this.embalado.desCpl !== ' ' ? (' ' + this.embalado.desCpl) : '')),
             oriPai: dono.numOri,
             paiAca: this.paiAcabado,
-            ordPai: (dono.desNfv + (dono.desCpl !== ' ' ? (' ' + dono.desCpl) : '')) === this.paiAcabado ? '0' : '1'
+            ordPai: (dono.desNfv + (dono.desCpl !== ' ' ? (' ' + dono.desCpl) : '')) === this.paiAcabado ? '0' : '1',
+            qtdCon: Number(dono.qtdCon)
           })
           this.embalado = null
         } else if (troca.CODPRO === pai.codPro && troca.CODDER === pai.codDer && troca.CODCMP === filho.codPro && troca.DERCMP === filho.codDer && filho.numOri < 320 && filho.codFam !== '05001') {
@@ -172,7 +173,8 @@ export default {
             desCmp: (filho.codFam === '02001' || filho.codFam === '02002' || filho.codFam === '02003' || filho.codFam === '02004') ? filho.codRef : (filho.desNfv + (filho.desCpl !== ' ' ? (' ' + filho.desCpl) : '')),
             oriPai: dono.numOri,
             paiAca: this.paiAcabado,
-            ordPai: (dono.desNfv + (dono.desCpl !== ' ' ? (' ' + dono.desCpl) : '')) === this.paiAcabado ? '0' : '1'
+            ordPai: (dono.desNfv + (dono.desCpl !== ' ' ? (' ' + dono.desCpl) : '')) === this.paiAcabado ? '0' : '1',
+            qtdCon: Number(dono.qtdCon)
           })
         }
       })
@@ -200,7 +202,7 @@ export default {
           if ((excl.desPro === excl.paiAca) && (paiAcaAtual === excl.paiAca) && (paiAtual !== null)) {
             stringExclusivos += ' + '
           } else { 
-            stringExclusivos += excl.desPro + ' : '
+            stringExclusivos += excl.qtdCon + ' ' + excl.desPro + ' : '
           }
           paiAtual = excl.codRev
           paiAcaAtual = excl.paiAca
