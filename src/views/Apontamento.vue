@@ -46,13 +46,14 @@
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Fornecedor</span>
                 <input id="numPed" class="form-control" type="text" disabled v-model="nomFor">
-                <button id="btnBuscaFornecedores" class="btn btn-secondary input-group-btn btn-busca" @click="buscaFornecedores" data-bs-toggle="modal" data-bs-target="#fornecedoresModal">...</button>
+                <button id="btnBuscaFornecedores" class="btn btn-secondary input-group-btn btn-busca" @click="buscaFornecedores">...</button>
+                <button id="btnModalFornecedores" class="btn-modal" data-bs-toggle="modal" data-bs-target="#fornecedoresModal">.</button>
               </div>
             </div>
           </div>
           <div class="row mb-2">
             <div class="d-grid gap-2">
-              <button id="btnProcessar" class="btn btn-secondary" type="button" @click="processar" ref="btnProcessar">Processar</button>
+              <button id="btnProcessar" class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#confirmaProcessarModal" ref="btnProcessar">Processar</button>
             </div>
           </div>
         </div>
@@ -102,6 +103,25 @@
             </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Confirma Processamento -->
+      <div class="modal fade" id="confirmaProcessarModal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Confirmação</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeModalConfirmaProcessar"></button>
+            </div>
+            <div class="modal-body">
+              <p>Confirma o processamento da OP?</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" @click="processar()">Sim</button>
+              <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">Não</button>
             </div>
           </div>
         </div>
@@ -191,12 +211,16 @@ export default {
       const partes = this.codBarrasCab.split('.')
       document.getElementsByTagName('body')[0].style.cursor = 'wait'
       document.getElementById('btnBuscaFornecedores').disabled = true
-      axios.get(this.api_url + '/fornecedoresPorProduto?token=' + this.token)
+      axios.get(this.api_url + '/fornecedoresPorProduto?token=' + this.token + '&codEmp=' + partes[0] + '&codPro=' + this.ordemProducao.CODPRO + '&codDer=' + this.ordemProducao.CODDER)
         .then((response) => {
           this.checkInvalidLoginResponse(response.data)
-          this.fornecedores = response.data.fornecedores
-          this.fornecedoresFiltrados = response.data.fornecedores
-          document.getElementById('inputFiltroFornecedor').focus()   
+          if(!response.data.fornecedores.length) {
+            alert('Nenhum fornecedor encontrado!')
+          } else {
+            this.fornecedores = response.data.fornecedores
+            this.fornecedoresFiltrados = response.data.fornecedores
+            this.openFornecedoresModal()
+          }
         })
         .catch((err) => {
           console.log(err)
@@ -205,6 +229,13 @@ export default {
           document.getElementsByTagName('body')[0].style.cursor = 'auto'
           document.getElementById('btnBuscaFornecedores').disabled = false          
         })
+    },
+    openFornecedoresModal () {
+      const modalElement = document.getElementById('fornecedoresModal')
+      modalElement.addEventListener('shown.bs.modal', () => {
+        document.getElementById('inputFiltroFornecedor').focus()
+      })
+      document.getElementById('btnModalFornecedores').click()
     },
     filtrarFornecedores () {
       this.fornecedoresFiltrados = this.fornecedores.filter(forn => forn.NOMFOR.toUpperCase().startsWith(this.fornecedoresFiltro.toUpperCase()) || 
@@ -218,6 +249,7 @@ export default {
       document.getElementById('btnProcessar').focus()
     },
     processar () {
+      document.getElementById('closeModalConfirmaProcessar').click()
       if (this.validarCampos()) {
         document.getElementsByTagName('body')[0].style.cursor = 'wait'
         document.getElementById('btnProcessar').disabled = true
@@ -285,5 +317,8 @@ export default {
   }
   .sm-header {
     font-size: 0.9rem !important;
+  }
+  .btn-modal {
+    display: none;
   }
 </style>
