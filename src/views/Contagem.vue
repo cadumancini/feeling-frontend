@@ -16,7 +16,7 @@
             </div>
           </div>
           <div class="row mb-2">
-            <div class="col-8">
+            <div class="col-8 mb-mobile">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Produto</span>
                 <input class="form-control" type="text" v-model="produtoCab">
@@ -90,15 +90,21 @@
             </div>
           </div>
           <div class="row mb-2">
-            <div class="col">
+            <div class="col-6 mb-mobile">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Derivação</span>
                 <input class="form-control" v-model="derivacao" disabled type="text">
               </div>
             </div>
+            <div class="col-6">
+              <div class="input-group input-group-sm">
+                <span class="input-group-text">Último Inv.</span>
+                <input class="form-control" v-model="ultInv" disabled type="text">
+              </div>
+            </div>
           </div>
           <div class="row mb-2">
-            <div class="col-4">
+            <div class="col-4 mb-mobile">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Unid.</span>
                 <input class="form-control" v-model="unidade" disabled type="text">
@@ -182,6 +188,7 @@ export default {
       descricao: '',
       produto: '',
       derivacao: '',
+      ultInv: '',
       unidade: '',
       depositoAtu: '',
       qtdeEstoque: '',
@@ -271,6 +278,7 @@ export default {
         this.descricao = ''
         this.produto = ''
         this.derivacao = ''
+        this.ultInv = ''
         this.unidade = ''
         this.depositoAtu = ''
         this.qtdeEstoque = ''
@@ -293,6 +301,7 @@ export default {
               this.produto = this.produtoInv.CODPRO
               this.descricao = this.produtoInv.DESNFV
               this.derivacao = this.produtoInv.CODDER + ' - ' + this.produtoInv.DESCPL
+              this.ultInv = this.produtoInv.ULTINV
               this.unidade = this.produtoInv.UNIMED
               this.depositoAtu = this.produtoInv.DEPDER !== ' ' ? this.produtoInv.DEPDER : 
                                   this.produtoInv.DEPPRO !== ' ' ? this.produtoInv.DEPPRO :
@@ -374,6 +383,7 @@ export default {
       this.descricao = ''
       this.produto = ''
       this.derivacao = ''
+      this.ultInv = ''
       this.unidade = ''
       this.depositoAtu = ''
       this.qtdeEstoque = ''
@@ -439,5 +449,29 @@ export default {
   .vlr-final {
     position: absolute;
     padding-top: 6px;
+  }
+
+  /* For desktop: */
+  .col-1 {width: 8.33%;}
+  .col-2 {width: 16.66%;}
+  .col-3 {width: 25%;}
+  .col-4 {width: 33.33%;}
+  .col-5 {width: 41.66%;}
+  .col-6 {width: 50%;}
+  .col-7 {width: 58.33%;}
+  .col-8 {width: 66.66%;}
+  .col-9 {width: 75%;}
+  .col-10 {width: 83.33%;}
+  .col-11 {width: 91.66%;}
+  .col-12 {width: 100%;}
+
+  @media only screen and (max-width: 768px) {
+    /* For mobile phones: */
+    [class*="col-"] {
+      width: 100%;
+    }
+    .mb-mobile {
+      margin-bottom: .5rem;
+    }
   }
 </style>
