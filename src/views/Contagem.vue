@@ -301,7 +301,7 @@ export default {
               this.produto = this.produtoInv.CODPRO
               this.descricao = this.produtoInv.DESNFV
               this.derivacao = this.produtoInv.CODDER + ' - ' + this.produtoInv.DESCPL
-              this.ultInv = this.produtoInv.ULTINV
+              this.ultInv = this.compareDates(' ', this.produtoInv.ULTOBS)
               this.unidade = this.produtoInv.UNIMED
               this.depositoAtu = this.produtoInv.DEPDER !== ' ' ? this.produtoInv.DEPDER : 
                                   this.produtoInv.DEPPRO !== ' ' ? this.produtoInv.DEPPRO :
@@ -333,6 +333,33 @@ export default {
             document.getElementById('btnBuscar').disabled = false
           })
       }
+    },
+    compareDates(ultInv, ultObs) {
+      if (ultInv !== ' ' && ultObs === ' ') return ultInv
+      else if (ultInv === ' ' && ultObs !== ' ') return ultObs
+      else if (ultInv === ' ' && ultObs === ' ') return ' '
+      else {
+        const datUltInv = this.buildDate(ultInv)
+        const datUltObs = this.buildDate(ultObs)
+        if (datUltInv.getTime() > datUltObs.getTime()) return ultInv
+        if (datUltObs.getTime() > datUltInv.getTime()) return ultObs
+        return ultObs
+      }
+    },
+    buildDate(date) {
+      const yearStr = date.substring(6, 10)
+      const monthStr = date.substring(3, 5)
+      const dayStr = date.substring(0, 2)
+      const hourStr = date.substring(13, 15)
+      const minStr = date.substring(16, 18)
+
+      const year = Number(yearStr)
+      const month = Number(monthStr) - 1
+      const day = Number(dayStr)
+      const hour = Number(hourStr)
+      const min = Number(minStr)
+
+      return new Date(year, month, day, hour, min)  
     },
     realizarContagem () {
       var depositosList = document.getElementById('depositosList');
