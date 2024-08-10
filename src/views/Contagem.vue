@@ -301,7 +301,7 @@ export default {
               this.produto = this.produtoInv.CODPRO
               this.descricao = this.produtoInv.DESNFV
               this.derivacao = this.produtoInv.CODDER + ' - ' + this.produtoInv.DESCPL
-              this.ultInv = this.compareDates(' ', this.produtoInv.ULTOBS)
+              this.ultInv = this.compareDates(this.produtoInv.ULTINV, this.produtoInv.ULTOBS)
               this.unidade = this.produtoInv.UNIMED
               this.depositoAtu = this.produtoInv.DEPDER !== ' ' ? this.produtoInv.DEPDER : 
                                   this.produtoInv.DEPPRO !== ' ' ? this.produtoInv.DEPPRO :
