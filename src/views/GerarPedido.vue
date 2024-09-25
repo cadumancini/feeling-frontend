@@ -1466,7 +1466,7 @@ export default {
         {
           pedido: {
             codEmp: this.empresa,
-            codFil: 1,
+            codFil: '1',
             numPed: this.numPed > 0 ? this.numPed : 0,
             codCli: this.cliente,
             pedCli: this.pedCli !== '' ? this.pedCli : ' ',
