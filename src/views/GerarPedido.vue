@@ -1344,6 +1344,7 @@ export default {
     selectConfig (configClicked) {
       this.itemSelecionado.config = configClicked.DESPRO
       this.itemSelecionado.codConfig = configClicked.CODPRO
+      this.itemSelecionado.cplIpd = configClicked.DESPRO
       this.itemSelecionado.medMin = parseInt(Number(configClicked.MEDMIN) * 100)
       this.itemSelecionado.medMax = parseInt(Number(configClicked.MEDMAX) * 100)
       document.getElementById('closeModalConfigs').click()
@@ -1359,6 +1360,7 @@ export default {
     selectComp (compClicked) {
       this.itemSelecionado.comp = compClicked.CODDER
       this.itemSelecionado.codComp = compClicked.CODDER
+      this.itemSelecionado.cplIpd += ' ' + compClicked.DESCPL
       document.getElementById('closeModalComps').click()
       this.itemSelecionado = null
     },
@@ -1724,6 +1726,7 @@ export default {
               codDer: item.codComp,
               derEsp: item.cMed ? item.comp : '',
               seqIpd: item.seqIpd ? Number(item.seqIpd) : 0,
+              cplIpd: item.cMed ? item.cplIpd + '. Medida especial: ' + item.comp + 'cm' : item.cplIpd,
               qtdPed: item.un,
               preUni: Number(item.vlrUnit.replace('.', '').replace(',', '')) / 100,
               perDs1: Number(item.desc1.toString().replace(',', '.')),
