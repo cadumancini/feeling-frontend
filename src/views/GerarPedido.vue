@@ -1634,22 +1634,18 @@ export default {
             temErro = true
           }
           if (item.cMed) {
+            if ((Number(item.comp) < Number(item.medMin)) || (Number(item.comp) > Number(item.medMax))) {
+              alert('Aviso: O produto "' + item.config + '" está com medida especial fora do mínimo (' + item.medMin + ' cm) e máximo (' + item.medMax + ' cm), mas será incluído no pedido normalmente.')
+            }
             if (!item.comp) {
               alert('Erro: Existe(m) produto(s) com medida especial sem o comprimento preenchido. Verifique!')
               temErro = true
-            } else if ((Number(item.comp) < Number(item.medMin)) || (Number(item.comp) > Number(item.medMax))) {
-              alert('Aviso: O produto "' + item.config + '" está com medida especial fora do mínimo (' + item.medMin + ' cm) e máximo (' + item.medMax + ' cm), mas será incluído no pedido normalmente.')
             } else {
               let compMaisProximo = ''
-              let menorDistancia = 1000000
               compMaisProximo = item.derivacoesPossiveis[0].CODDER
+              let menorDistancia = Number(compMaisProximo) - Number(item.comp)
+              if (menorDistancia < 0) menorDistancia *= -1
               let achou = false
-              item.derivacoesPossiveis.forEach(comp => {
-                if (Number(comp.CODDER) === Number(item.comp)) {
-                  compMaisProximo = comp.CODDER
-                  achou = true
-                }
-              })
 
               if (!achou) {
                 item.derivacoesPossiveis.forEach(comp => {
@@ -1663,7 +1659,12 @@ export default {
                   }
                 })
               }
-              item.codComp = compMaisProximo
+              if (compMaisProximo === item.codComp) {
+                item.codComp = compMaisProximo
+              } else {
+                alert('O comprimento escolhido para o produto "' + item.config + '" não é o mais próximo da medida especial digitada. Favor selecionar o comprimento ' + compMaisProximo + '.')
+                temErro = true
+              }
             }
           }
           if (temErro) {
