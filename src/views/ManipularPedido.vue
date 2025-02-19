@@ -352,8 +352,6 @@ export default {
       const seqIpd = item.SEQIPD
       this.trocas = []
       this.trocas.push(itemTroca)
-      console.log(itemTroca)
-      // if (itemTroca.codFam === '02001' || itemTroca.codFam === '02002') {
       if (itemTroca.agpMod !== ' ') {
         item.ACABADOS.forEach(acabado => {
           if (acabado.filhos) {
@@ -363,7 +361,8 @@ export default {
         if (itemTroca.itensMontagem && itemTroca.itensMontagem.length) {
           item.ACABADOS.forEach(acabado => {
             if (acabado.filhos) {
-              acabado.filhos.forEach(filho => this.analisarItensMontagem(acabado, filho, itemTroca.itensMontagem))
+              const agpMod = this.buscarAgpModNivelAcima(item, itemTroca.codNiv)
+              acabado.filhos.forEach(filho => this.analisarItensMontagem(acabado, filho, itemTroca.itensMontagem, agpMod))
             }
           })
         }
@@ -376,6 +375,11 @@ export default {
         })
       }
       this.requestTroca(this.pedido, seqIpd, item)
+    },
+    buscarAgpModNivelAcima (item, codNiv) {
+      const lastDotIndex = codNiv.lastIndexOf('.')
+      const codNivDesejado = codNiv.substring(0, lastDotIndex)
+      return item.ALLCOMPONENTS.filter(mod => mod.codNiv === codNivDesejado)[0].agpMod
     },
     analisarSeTrocarTalhado (pai, filho, itemTroca) {
       if (pai.ACABADO) {
@@ -411,11 +415,10 @@ export default {
         filho.filhos.forEach(neto => this.analisarSeTrocarTalhado(filho, neto, itemTroca))
       }
     },
-    analisarItensMontagem (pai, filho, itensMontagem) {
+    analisarItensMontagem (pai, filho, itensMontagem, agpMod) {
       itensMontagem.forEach(itemMontagem => {
         if (pai.numOri <= 320 &&
-        filho.codPro === itemMontagem.CODCMP &&
-        (filho.codDer === 'GM' || filho.proGen === 'S')) {
+        filho.codPro === itemMontagem.CODCMP && filho.agpMod === agpMod) {
           const objTroca = {
             codNiv: filho.codNiv,
             codMod: pai.codPro,
@@ -430,7 +433,7 @@ export default {
         }
       })
       if (filho.filhos) {
-        filho.filhos.forEach(neto => this.analisarItensMontagem(filho, neto, itensMontagem))
+        filho.filhos.forEach(neto => this.analisarItensMontagem(filho, neto, itensMontagem, agpMod))
       }
     },
     analisarSeTrocarFilhos (pai, filho, itemTroca) {
