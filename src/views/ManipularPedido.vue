@@ -18,6 +18,7 @@
             :item="child"
             :level=0
             :codEmp="item.CODEMP"
+            :ipdEnv="item.ipdEnv"
             @trocar="(itemTroca) => efetuarTroca(item, itemTroca)"/>
         </tbody>
       </table>

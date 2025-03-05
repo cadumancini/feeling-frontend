@@ -11,7 +11,7 @@
     <th class="fw-normal font-small">{{ item.qtdCon }}</th>
     <th class="fw-normal font-small">{{ item.uniMed }}</th>
     <th class="fw-normal align-center exchange" v-if="item.codDer === 'G' || item.proGen === 'S' || item.podeTrocar">
-      <font-awesome-icon class="pointer" icon="redo-alt" @click="buscarOpcoes(item)" data-bs-toggle="modal" :data-bs-target="`#modal-`+item.hashModal"/>
+      <font-awesome-icon class="pointer" icon="redo-alt" @click="buscarOpcoes(item)" data-bs-toggle="modal" :data-bs-target="`#modal-`+item.hashModal" v-bind:class="{ 'ipdEnv': item.ipdEnv }"/>
     </th>
     <th v-else></th>
   </tr>
@@ -22,6 +22,7 @@
     :item="child"
     :codEmp="codEmp"
     :level="(child.codDer !== 'GM' && ((child.codDer === 'G' || child.proGen === 'S' || child.podeTrocar || child.codFam === '05001'))) ? level + 1 : level"
+    :ipdEnv="item.ipdEnv"
     @trocar="trocar"/>
 
   <!-- Modal -->
@@ -80,7 +81,7 @@
 import axios from 'axios'
 export default {
   name: 'TreeItem',
-  props: ['item', 'level', 'codEmp'],
+  props: ['item', 'level', 'codEmp', 'ipdEnv'],
   data () {
     return {
       api_url: '',
@@ -268,5 +269,9 @@ export default {
     position: relative;
     top: -6px;
     left: 2px;
+  }
+  .ipdEnv {
+    cursor: not-allowed;
+    pointer-events: none;
   }
 </style>

@@ -1964,6 +1964,7 @@ export default {
               this.totalM3 = parseFloat(response.data.volumeTotal).toFixed(2)
               this.itens.forEach(ipd => {
                 ipd.ipdEnv = true
+                ipd.MANIPULAR = false
               })
             } else {
               alert(response.data)
