@@ -8,7 +8,7 @@
             <div class="col">
               <div class="input-group input-group-sm">
                 <span class="input-group-text">Cód. de Barras</span>
-                <input class="form-control" type="text" v-on:keyup.enter="onEnter" v-model="codBarrasCab" ref="inputCodBarras">
+                <input class="form-control" type="text" v-on:keyup.enter="onEnter" v-model="codBarrasCab" ref="inputCodBarras" placeholder="PROD.DER ou LOTE.PROD.DER">
                 <!-- <button class="btn btn-secondary input-group-btn" @click="toggleScanner" data-bs-toggle="modal" data-bs-target="#barcodeModal">
                   <font-awesome-icon icon="barcode"/>
                 </button> -->
